@@ -14,8 +14,7 @@ from periods import (
 class AvailabilityState(str, Enum):
     OCCUPIED = "occupied"
     FREE_UNTIL = "free_until"
-    FREE_REST_OF_DAY = "free_rest_of_day"
-    OUTSIDE_REGULAR_HOURS = "outside_regular_hours"
+    FREE_ALL_WEEK = "free_all_week"
 
 
 WEEKDAY_TO_KR = {
@@ -342,42 +341,6 @@ class AvailabilityEngine:
             schedules
         )
 
-        if (
-            now_minutes
-            < self.day_start_minutes
-            or now_minutes
-            >= self.day_end_minutes
-        ):
-            return {
-                "state":
-                    AvailabilityState.OUTSIDE_REGULAR_HOURS,
-
-                "room": room,
-                "room_id": room_id,
-                "day": day,
-
-                "has_classes_today":
-                    has_classes_today,
-
-                "current_classes": [],
-                "next_class": None,
-
-                "occupied_until_minutes":
-                    None,
-
-                "occupied_until":
-                    None,
-
-                "free_until_minutes":
-                    None,
-
-                "free_until":
-                    None,
-
-                "free_minutes":
-                    None,
-            }
-
         intervals = [
             (
                 schedule,
@@ -427,6 +390,7 @@ class AvailabilityEngine:
                 ],
 
                 "next_class": None,
+                "next_class_day_offset": None,
 
                 "occupied_until_minutes":
                     occupied_until,
@@ -446,91 +410,44 @@ class AvailabilityEngine:
                     None,
             }
 
-        future_classes = [
-            (
-                schedule,
-                start,
-                end,
-            )
-            for schedule, start, end
-            in intervals
-            if start > now_minutes
-        ]
-
-        if future_classes:
-            next_schedule, next_start, _ = min(
-                future_classes,
-                key=lambda x: x[1],
-            )
-
-            free_minutes = (
-                next_start
-                - now_minutes
-            )
-
-            return {
-                "state":
-                    AvailabilityState.FREE_UNTIL,
-
-                "room": room,
-                "room_id": room_id,
-                "day": day,
-
-                "has_classes_today":
-                    has_classes_today,
-
-                "current_classes": [],
-
-                "next_class":
-                    next_schedule,
-
-                "occupied_until_minutes":
-                    None,
-
-                "occupied_until":
-                    None,
-
-                "free_until_minutes":
-                    next_start,
-
-                "free_until":
-                    format_minutes(
-                        next_start
-                    ),
-
-                "free_minutes":
-                    free_minutes,
-            }
-
-        return {
-            "state":
-                AvailabilityState.FREE_REST_OF_DAY,
-
+        base = {
             "room": room,
             "room_id": room_id,
             "day": day,
-
-            "has_classes_today":
-                has_classes_today,
-
+            "has_classes_today": has_classes_today,
             "current_classes": [],
             "next_class": None,
-
-            "occupied_until_minutes":
-                None,
-
-            "occupied_until":
-                None,
-
-            "free_until_minutes":
-                None,
-
-            "free_until":
-                None,
-
-            "free_minutes":
-                None,
+            "next_class_day_offset": None,
+            "occupied_until_minutes": None,
+            "occupied_until": None,
+            "free_until_minutes": None,
+            "free_until": None,
+            "free_minutes": None,
         }
+
+        # Day 7 includes today's earlier classes recurring next week.
+        # Keep actual weekend classes in the cycle as well.
+        for offset in range(8):
+            next_day = WEEKDAY_TO_KR[(now.weekday() + offset) % 7]
+            future = [
+                (schedule, self.schedule_interval(schedule)[0])
+                for schedule in self.get_day_schedules(room_id, next_day)
+                if offset * 1440 + self.schedule_interval(schedule)[0] > now_minutes
+            ]
+            if future:
+                next_schedule, next_start = min(future, key=lambda item: item[1])
+                return {
+                    **base,
+                    "state": AvailabilityState.FREE_UNTIL,
+                    "next_class": next_schedule,
+                    "next_class_day_offset": offset,
+                    "free_until_minutes": next_start,
+                    "free_until": format_minutes(next_start),
+                    "free_minutes": offset * 1440 + next_start - now_minutes,
+                }
+
+        # No arbitrary closing time when the entire weekly timetable is empty.
+        return {**base, "state": AvailabilityState.FREE_ALL_WEEK}
 
     def find_available_rooms(
         self,
@@ -557,10 +474,7 @@ class AvailabilityEngine:
 
             state = status["state"]
 
-            if state in (
-                AvailabilityState.OCCUPIED,
-                AvailabilityState.OUTSIDE_REGULAR_HOURS,
-            ):
+            if state == AvailabilityState.OCCUPIED:
                 continue
 
             if (
@@ -573,9 +487,7 @@ class AvailabilityEngine:
                 ):
                     continue
 
-            # FREE_REST_OF_DAY:
-            # 확보한 정규 시간표상 이후 수업이 없으므로
-            # 특정 종료 시각을 임의로 계산하지 않는다.
+            # FREE_ALL_WEEK has no finite duration; include it at any minimum.
 
             result.append(
                 status

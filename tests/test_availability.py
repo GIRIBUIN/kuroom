@@ -216,108 +216,52 @@ class AvailabilityTest(
             ids,
         )
 
-    def test_free_rest_of_day(self):
-        now = datetime(
-            2026,
-            10,
-            12,
-            16,
-            0,
-        )
+    def test_same_weekday_next_week_and_minimum(self):
+        now = datetime(2026, 10, 12, 16)
+        status = self.engine.get_current_status("공B352", now)
+        self.assertEqual(status["state"], AvailabilityState.FREE_UNTIL)
+        self.assertEqual(status["next_class_day_offset"], 7)
+        self.assertEqual(status["free_minutes"], 9750)
+        self.assertEqual(status["free_until"], "10:30")
+        for minimum, included in [(9750, True), (9751, False)]:
+            with self.subTest(minimum=minimum):
+                ids = [item["room_id"] for item in self.engine.find_available_rooms(now, "공B", minimum)]
+                self.assertEqual("공B352" in ids, included)
+                self.assertIn("공B170", ids)
 
-        status = (
-            self.engine
-            .get_current_status(
-                "공B352",
-                now,
-            )
-        )
+    def test_empty_week_has_no_invented_duration(self):
+        now = datetime(2026, 10, 12, 21, 17)
+        status = self.engine.get_current_status("공B170", now)
+        self.assertEqual(status["state"], AvailabilityState.FREE_ALL_WEEK)
+        self.assertFalse(status["has_classes_today"])
+        for key in ["next_class", "next_class_day_offset", "free_minutes", "free_until", "free_until_minutes"]:
+            self.assertIsNone(status[key])
+        ids = [item["room_id"] for item in self.engine.find_available_rooms(now, min_minutes=100000)]
+        self.assertEqual(ids, ["공B170", "새101"])
 
-        self.assertEqual(
-            status["state"],
-            AvailabilityState.FREE_REST_OF_DAY,
-        )
+    def test_monday_night_tuesday_and_friday_night_monday(self):
+        base = self.engine.schedules[0]
+        engine = AvailabilityEngine(self.engine.room_master, [
+            {**base, "start_period": 1, "end_period": 1},
+            {**base, "day": "화", "start_period": 1, "end_period": 1},
+        ])
+        for day, next_day, offset, duration in [(12, "화", 1, 703), (16, "월", 3, 3583)]:
+            with self.subTest(day=day):
+                now = datetime(2026, 10, day, 21, 17)
+                status = engine.get_current_status("공B352", now)
+                self.assertEqual(status["next_class"]["day"], next_day)
+                self.assertEqual(status["next_class_day_offset"], offset)
+                self.assertEqual(status["free_minutes"], duration)
+                for minimum, included in [(duration, True), (duration + 1, False)]:
+                    ids = [item["room_id"] for item in engine.find_available_rooms(now, "공B", minimum)]
+                    self.assertEqual("공B352" in ids, included)
 
-        self.assertTrue(
-            status[
-                "has_classes_today"
-            ]
-        )
-
-        self.assertIsNone(
-            status["free_until"]
-        )
-
-        self.assertIsNone(
-            status["free_minutes"]
-        )
-
-    def test_room_without_classes(self):
-        now = datetime(
-            2026,
-            10,
-            12,
-            12,
-            30,
-        )
-
-        status = (
-            self.engine
-            .get_current_status(
-                "공B170",
-                now,
-            )
-        )
-
-        self.assertEqual(
-            status["state"],
-            AvailabilityState.FREE_REST_OF_DAY,
-        )
-
-        self.assertFalse(
-            status[
-                "has_classes_today"
-            ]
-        )
-
-        self.assertIsNone(
-            status["free_minutes"]
-        )
-
-    def test_free_rest_of_day_not_limited_by_duration(
-        self,
-    ):
-        now = datetime(
-            2026,
-            10,
-            12,
-            16,
-            0,
-        )
-
-        result = (
-            self.engine
-            .find_available_rooms(
-                now,
-                building="공B",
-                min_minutes=1000,
-            )
-        )
-
-        ids = {
-            item["room_id"]
-            for item in result
-        }
-
-        self.assertIn(
-            "공B352",
-            ids,
-        )
-
-        self.assertIn(
-            "공B170",
-            ids,
-        )
+    def test_empty_day_uses_later_weekday(self):
+        status = self.engine.get_current_status("공B352", datetime(2026, 10, 14, 12))
+        self.assertFalse(status["has_classes_today"])
+        self.assertEqual(status["next_class"]["day"], "월")
+        self.assertEqual(status["next_class_day_offset"], 5)
+        self.assertEqual(status["free_minutes"], 7110)
 
     def test_building_filter(self):
         now = datetime(
@@ -346,51 +290,32 @@ class AvailabilityTest(
             ids,
         )
 
-    def test_outside_regular_hours(self):
-        now = datetime(
-            2026,
-            10,
-            12,
-            20,
-            0,
-        )
+    def test_before_start_and_after_regular_hours(self):
+        for hour, minute, duration, offset in [(8, 0, 150, 0), (9, 0, 90, 0), (20, 30, 9480, 7), (21, 17, 9433, 7)]:
+            with self.subTest(hour=hour, minute=minute):
+                now = datetime(2026, 10, 12, hour, minute)
+                status = self.engine.get_current_status("공B352", now)
+                self.assertEqual(status["state"], AvailabilityState.FREE_UNTIL)
+                self.assertEqual(status["free_minutes"], duration)
+                self.assertEqual(status["next_class_day_offset"], offset)
+                self.assertEqual(len(self.engine.find_available_rooms(now)), 3)
 
-        status = (
-            self.engine
-            .get_current_status(
-                "공B352",
-                now,
-            )
-        )
+    def test_exact_start_and_final_end(self):
+        self.assertEqual(self.engine.get_current_status(
+            "공B352", datetime(2026, 10, 12, 10, 30))["state"], AvailabilityState.OCCUPIED)
+        self.assertEqual(self.engine.get_current_status(
+            "공B352", datetime(2026, 10, 12, 15, 30))["next_class_day_offset"], 7)
 
-        self.assertEqual(
-            status["state"],
-            AvailabilityState.OUTSIDE_REGULAR_HOURS,
-        )
-
-    def test_outside_regular_hours_not_searchable(
-        self,
-    ):
-        now = datetime(
-            2026,
-            10,
-            12,
-            20,
-            0,
-        )
-
-        result = (
-            self.engine
-            .find_available_rooms(
-                now,
-                building="공B",
-            )
-        )
-
-        self.assertEqual(
-            result,
-            [],
-        )
+    def test_weekend_and_late_classes_are_not_skipped(self):
+        base = self.engine.schedules[0]
+        engine = AvailabilityEngine(self.engine.room_master, [
+            {**base, "day": "토", "start_period": 1, "end_period": 1},
+            {**base, "start_period": 24, "end_period": 24},
+        ])
+        self.assertEqual(engine.get_current_status(
+            "공B352", datetime(2026, 10, 16, 21, 17))["next_class"]["day"], "토")
+        self.assertEqual(engine.get_current_status(
+            "공B352", datetime(2026, 10, 12, 20, 30))["state"], AvailabilityState.OCCUPIED)
 
     def test_free_intervals(self):
         free = (

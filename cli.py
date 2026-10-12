@@ -62,21 +62,22 @@ def availability_description(
 
     if (
         state
-        == AvailabilityState.FREE_REST_OF_DAY
+        == AvailabilityState.FREE_ALL_WEEK
     ):
-        if not status["has_classes_today"]:
-            return "정규수업 없음"
-
-        return "이후 정규수업 없음"
+        return "다음 수업 없음"
 
     if (
         state
         == AvailabilityState.FREE_UNTIL
     ):
+        offset = status["next_class_day_offset"]
+        day = "" if offset == 0 else (
+            ("다음 주 " if offset == 7 else "")
+            + status["next_class"]["day"] + " "
+        )
         return (
-            f"{status['free_until']}"
-            f"까지"
-            f" ({status['free_minutes']}분)"
+            f"{status['free_minutes']}분"
+            f" · 다음 수업 {day}{status['free_until']}"
         )
 
     raise ValueError(
@@ -97,31 +98,8 @@ def status_text(
             " 종료"
         )
 
-    if (
-        state
-        == AvailabilityState.OUTSIDE_REGULAR_HOURS
-    ):
-        return "정규 시간 외"
-
-    if (
-        state
-        == AvailabilityState.FREE_REST_OF_DAY
-    ):
-        if not status["has_classes_today"]:
-            return "정규수업 없음"
-
-        return (
-            "비어 있음"
-            " · 이후 정규수업 없음"
-        )
-
-    if state == AvailabilityState.FREE_UNTIL:
-        return (
-            "비어 있음"
-            f" · {status['free_until']}"
-            "까지"
-            f" · {status['free_minutes']}분"
-        )
+    if state in (AvailabilityState.FREE_ALL_WEEK, AvailabilityState.FREE_UNTIL):
+        return f"비어 있음 · {availability_description(status)}"
 
     raise ValueError(
         f"알 수 없는 상태: {state}"

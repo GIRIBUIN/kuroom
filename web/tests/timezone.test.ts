@@ -41,7 +41,7 @@ describe('manifest timezone and explicit campus wall clock', () => {
     expect(engine.toCampusWallClock(new Date('2026-10-11T15:00:00Z')))
       .toEqual({ day: '월', hour: 0, minute: 0 })
     expect(engine.getCurrentStatus('공B352', new Date('2026-10-11T15:00:00Z')).state)
-      .toBe('outside_regular_hours')
+      .toBe('free_until')
   })
 
   it('uses the actual current instant when Date is omitted', () => {

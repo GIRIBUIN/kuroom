@@ -1,7 +1,7 @@
 import { DAYS } from './data'
 import type { Day, Manifest, Room, Schedule } from './data'
 
-// V0 constants and control flow mirror periods.py and availability.py.
+// Period conversion and weekly search semantics mirror the Python reference.
 export const DAY_START_MINUTES = 9 * 60
 export const PERIOD_MINUTES = 30
 export const DEFAULT_LAST_PERIOD = 19
@@ -9,8 +9,7 @@ export const DEFAULT_LAST_PERIOD = 19
 export const AvailabilityState = {
   OCCUPIED: 'occupied',
   FREE_UNTIL: 'free_until',
-  FREE_REST_OF_DAY: 'free_rest_of_day',
-  OUTSIDE_REGULAR_HOURS: 'outside_regular_hours',
+  FREE_ALL_WEEK: 'free_all_week',
 } as const
 export type AvailabilityState = (typeof AvailabilityState)[keyof typeof AvailabilityState]
 export type Interval = [number, number]
@@ -54,6 +53,7 @@ export type RoomStatus = StatusBase & (
       state: 'occupied'
       current_classes: Schedule[]
       next_class: null
+      next_class_day_offset: null
       occupied_until_minutes: number
       occupied_until: string
     })
@@ -61,14 +61,16 @@ export type RoomStatus = StatusBase & (
       state: 'free_until'
       current_classes: Schedule[]
       next_class: Schedule
+      next_class_day_offset: number
       free_until_minutes: number
       free_until: string
       free_minutes: number
     })
   | (NoOccupation & NoFreeDuration & {
-      state: 'free_rest_of_day' | 'outside_regular_hours'
+      state: 'free_all_week'
       current_classes: Schedule[]
       next_class: null
+      next_class_day_offset: null
     })
 )
 
@@ -257,11 +259,9 @@ export class AvailabilityEngine {
       room: this.getRoom(roomId), room_id: roomId, day,
       has_classes_today: schedules.length > 0,
       current_classes: [] as Schedule[], next_class: null,
+      next_class_day_offset: null,
       occupied_until_minutes: null, occupied_until: null,
       free_until_minutes: null, free_until: null, free_minutes: null,
-    }
-    if (nowMinutes < this.dayStartMinutes || nowMinutes >= this.dayEndMinutes) {
-      return { ...base, state: AvailabilityState.OUTSIDE_REGULAR_HOURS }
     }
     const intervals = schedules.map(schedule => {
       const [start, end] = this.scheduleInterval(schedule)
@@ -276,18 +276,25 @@ export class AvailabilityEngine {
         occupied_until_minutes: occupiedUntil, occupied_until: formatMinutes(occupiedUntil),
       }
     }
-    const future = intervals.filter(item => item.start > nowMinutes)
-    if (future.length > 0) {
-      // Stable minimum: retain the first schedule on ties, as Python min does.
-      const next = future.reduce((first, item) => item.start < first.start ? item : first)
-      return {
-        ...base, state: AvailabilityState.FREE_UNTIL, next_class: next.schedule,
-        free_until_minutes: next.start, free_until: formatMinutes(next.start),
-        free_minutes: next.start - nowMinutes,
+    // Include day 7: today's earlier classes recur next week. Preserve Saturday
+    // and Sunday schedules too, rather than assuming every weekend is empty.
+    for (let offset = 0; offset <= 7; offset++) {
+      const nextDay = DAYS[(DAYS.indexOf(day) + offset) % 7]
+      const future = this.getDaySchedules(roomId, nextDay).map(schedule => ({
+        schedule, start: this.scheduleInterval(schedule)[0],
+      })).filter(item => offset * 1440 + item.start > nowMinutes)
+      if (future.length > 0) {
+        const next = future.reduce((first, item) => item.start < first.start ? item : first)
+        return {
+          ...base, state: AvailabilityState.FREE_UNTIL, next_class: next.schedule,
+          next_class_day_offset: offset,
+          // Clock minutes on the next class's day, not minutes since this week began.
+          free_until_minutes: next.start, free_until: formatMinutes(next.start),
+          free_minutes: offset * 1440 + next.start - nowMinutes,
+        }
       }
     }
-    // No invented closing time or duration when no later regular class exists.
-    return { ...base, state: AvailabilityState.FREE_REST_OF_DAY }
+    return { ...base, state: AvailabilityState.FREE_ALL_WEEK }
   }
 
   /** Date is an instant; omitting it searches the actual current time. */
@@ -295,14 +302,14 @@ export class AvailabilityEngine {
     return this.findAvailableRoomsAtWallClock(this.toCampusWallClock(instant), building, minMinutes)
   }
 
-  /** Manual campus weekday/time, with the same V0 search semantics. */
+  /** Manual campus weekday/time on the repeating weekly timetable. */
   findAvailableRoomsAtWallClock(time: CampusWallClock, building: string | null = null, minMinutes = 0): RoomStatus[] {
     wallClockMinutes(time)
     const result: RoomStatus[] = []
     for (const room of this.roomMaster) {
       if (building !== null && room.building !== building) continue
       const status = this.getStatusAtWallClock(room.id, time)
-      if (status.state === AvailabilityState.OCCUPIED || status.state === AvailabilityState.OUTSIDE_REGULAR_HOURS) continue
+      if (status.state === AvailabilityState.OCCUPIED) continue
       if (status.state === AvailabilityState.FREE_UNTIL && status.free_minutes < minMinutes) continue
       result.push(status)
     }

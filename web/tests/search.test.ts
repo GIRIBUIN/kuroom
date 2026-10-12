@@ -38,7 +38,7 @@ describe('Python reference semantics', () => {
     expect(engine.getCurrentStatus('공B352', now)).toEqual({
       state: AvailabilityState.OCCUPIED,
       room: rooms[0], room_id: '공B352', day: '월', has_classes_today: true,
-      current_classes: [schedules[0]], next_class: null,
+      current_classes: [schedules[0]], next_class: null, next_class_day_offset: null,
       occupied_until_minutes: 720, occupied_until: '12:00',
       free_until_minutes: null, free_until: null, free_minutes: null,
     })
@@ -61,26 +61,59 @@ describe('Python reference semantics', () => {
     expect(engine.findAvailableRooms(at(12, 13), '공')).toEqual([])
   })
 
-  it('does not invent a duration or apply minMinutes after the final class', () => {
+  it('finds next week after the final class and leaves empty weeks unbounded', () => {
     expect(engine.getCurrentStatus('공B352', at(12, 16))).toMatchObject({
-      state: AvailabilityState.FREE_REST_OF_DAY, has_classes_today: true,
-      next_class: null, free_until: null, free_until_minutes: null, free_minutes: null,
+      state: AvailabilityState.FREE_UNTIL, has_classes_today: true,
+      next_class: schedules[0], next_class_day_offset: 7,
+      free_until: '10:30', free_until_minutes: 630, free_minutes: 9750,
     })
     expect(engine.getCurrentStatus('공B170', at(12, 16))).toMatchObject({
-      state: AvailabilityState.FREE_REST_OF_DAY, has_classes_today: false, free_minutes: null,
+      state: AvailabilityState.FREE_ALL_WEEK, has_classes_today: false, free_minutes: null,
     })
-    expect(engine.findAvailableRooms(at(12, 16), '공B', 1000).map(status => status.room_id))
+    expect(engine.findAvailableRooms(at(12, 16), '공B', 9750).map(status => status.room_id))
       .toEqual(['공B170', '공B352'])
+    expect(engine.findAvailableRooms(at(12, 16), '공B', 9751).map(status => status.room_id))
+      .toEqual(['공B170'])
   })
 
-  it.each([[8, 59], [18, 30], [20, 0]])('excludes outside hours at %i:%i', (hour, minute) => {
+  it.each([[8, 0, 150, 0], [9, 0, 90, 0], [20, 30, 9480, 7], [21, 17, 9433, 7]])(
+    'searches outside regular hours at %i:%i', (hour, minute, duration, offset) => {
     expect(engine.getCurrentStatus('공B352', at(12, hour, minute))).toMatchObject({
-      state: AvailabilityState.OUTSIDE_REGULAR_HOURS, has_classes_today: true,
-      current_classes: [], next_class: null,
-      occupied_until: null, occupied_until_minutes: null,
-      free_until: null, free_until_minutes: null, free_minutes: null,
+      state: AvailabilityState.FREE_UNTIL, has_classes_today: true,
+      next_class: schedules[0], next_class_day_offset: offset, free_minutes: duration,
     })
-    expect(engine.findAvailableRooms(at(12, hour, minute))).toEqual([])
+    expect(engine.findAvailableRooms(at(12, hour, minute))).toHaveLength(3)
+  })
+
+  it('cycles Monday night to Tuesday and Friday night to Monday, applying the minimum', () => {
+    const weekly = new AvailabilityEngine(rooms, [
+      { ...schedules[0], start_period: 1, end_period: 1 },
+      { ...schedules[0], day: '화', start_period: 1, end_period: 1 },
+    ], manifest)
+    expect(weekly.getCurrentStatus('공B352', at(12, 21, 17))).toMatchObject({
+      next_class: { day: '화' }, next_class_day_offset: 1, free_until: '09:00', free_minutes: 703,
+    })
+    expect(weekly.getCurrentStatus('공B352', at(16, 21, 17))).toMatchObject({
+      next_class: { day: '월' }, next_class_day_offset: 3, free_minutes: 3583,
+    })
+    expect(weekly.findAvailableRooms(at(12, 21, 17), '공B', 703).map(item => item.room_id))
+      .toEqual(['공B170', '공B352'])
+    expect(weekly.findAvailableRooms(at(12, 21, 17), '공B', 704).map(item => item.room_id))
+      .toEqual(['공B170'])
+    expect(weekly.getCurrentStatus('공B352', at(14, 12))).toMatchObject({
+      has_classes_today: false, next_class: { day: '월' }, next_class_day_offset: 5, free_minutes: 7020,
+    })
+  })
+
+  it('does not skip real weekend classes or occupied classes after the nominal end', () => {
+    const weekend = new AvailabilityEngine(rooms, [
+      { ...schedules[0], day: '토', start_period: 1, end_period: 1 },
+      { ...schedules[0], start_period: 24, end_period: 24 },
+    ], manifest)
+    expect(weekend.getCurrentStatus('공B352', at(16, 21, 17))).toMatchObject({
+      next_class: { day: '토' }, next_class_day_offset: 1, free_minutes: 703,
+    })
+    expect(weekend.getCurrentStatus('공B352', at(12, 20, 30)).state).toBe('occupied')
   })
 
   it('extends the global end time using schedules from any room or day', () => {
@@ -89,8 +122,8 @@ describe('Python reference semantics', () => {
     ], manifest)
     expect(extended.lastPeriod).toBe(23)
     expect(extended.dayEndMinutes).toBe(1230)
-    expect(extended.getCurrentStatus('공B170', at(12, 20, 29)).state).toBe('free_rest_of_day')
-    expect(extended.findAvailableRooms(at(12, 20, 30))).toEqual([])
+    expect(extended.getCurrentStatus('공B170', at(12, 20, 29)).state).toBe('free_all_week')
+    expect(extended.findAvailableRooms(at(12, 20, 30))).toHaveLength(3)
   })
 
   it('uses the latest currently occupied end, without extending through future classes', () => {
@@ -132,10 +165,10 @@ describe('Python reference semantics', () => {
 
   it('returns empty-day and unknown-room status as the reference does', () => {
     expect(engine.getCurrentStatus('공B352', at(17, 12))).toMatchObject({
-      day: '토', state: 'free_rest_of_day', has_classes_today: false,
+      day: '토', state: 'free_until', has_classes_today: false, next_class_day_offset: 2,
     })
     expect(engine.getCurrentStatus('unknown', at(18, 12))).toMatchObject({
-      room: null, day: '일', state: 'free_rest_of_day', has_classes_today: false,
+      room: null, day: '일', state: 'free_all_week', has_classes_today: false,
     })
     const entries = engine.getDaySchedules('공B352', '월')
     entries.pop()
@@ -165,7 +198,7 @@ describe('2026_B01012 benchmark parity', () => {
   const data = parseReleaseData(read('manifest'), read('rooms'), read('schedules'))
   const engine = new AvailabilityEngine(data.rooms, data.schedules, data.manifest)
   // Names/order/serialization are from bench/benchmark_search.py. Digests were
-  // recomputed with the unmodified Python reference against this release.
+  // verified with the Python weekly reference against this release.
   const queries = [
     { name: 'mon_all_0900', now: at(12, 9), wallClock: { day: '월', hour: 9, minute: 0 }, building: null, min: 0, count: 301, digest: '768c31378a99a5b6' },
     { name: 'mon_gongb_1520_60', now: at(12, 15, 20), wallClock: { day: '월', hour: 15, minute: 20 }, building: '공B', min: 60, count: 17, digest: 'fbcc591b09e2aaf3' },
