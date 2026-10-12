@@ -1,0 +1,14 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+
+# 수집 원본 / 캐시
+ku_room_output/
+
+# benchmark 실행 결과
+bench/results/
+
+# editor
+.vscode/
+.idea/

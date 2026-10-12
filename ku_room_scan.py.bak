@@ -1,0 +1,610 @@
+#!/usr/bin/env python3
+
+import argparse
+import json
+import re
+import time
+from collections import defaultdict
+from pathlib import Path
+
+import requests
+
+
+BASE_URL = "https://sugang.konkuk.ac.kr"
+SEARCH_URL = f"{BASE_URL}/sugang/search"
+
+# 브라우저에서 실제 시간표 페이지 주소가 다르면 이 값만 변경하면 됨.
+MAIN_PAGE_URL = (
+    f"{BASE_URL}/sugang/jsp/search/searchMainOuter.jsp"
+)
+
+OUTPUT_DIR = Path("ku_room_output")
+
+
+# ----------------------------------------------------------------------
+# HTTP
+# ----------------------------------------------------------------------
+
+def fetch_rows(year: str, term: str):
+    payload = {
+        "pYear": "2026",
+        "pTerm": "B01012",
+        "pPobt": "B04045",
+        "pSearchGb": "1",
+        "pUniv": "006751",
+        "pSustMjCd": "",          # 이것만 비움
+        "pLang": "",
+        "pKind": "",
+        "pSearchKind": "1",
+        "pSearchNm": "",
+    }
+    params = {
+        "attribute": "lectListOuter",
+        "fake": str(int(time.time() * 1000)),
+    }
+
+    user_agent = (
+        "Mozilla/5.0 "
+        "(X11; Linux x86_64; rv:157.0) "
+        "Gecko/20100101 Firefox/157.0"
+    )
+
+    common_headers = {
+        "User-Agent": user_agent,
+        "Accept-Language": "ko-KR,ko;q=0.9,en-US;q=0.5,en;q=0.3",
+    }
+
+    post_headers = {
+        **common_headers,
+        "Accept": "application/json, text/javascript, */*; q=0.01",
+        "X-Requested-With": "XMLHttpRequest",
+        "Origin": BASE_URL,
+        "Referer": MAIN_PAGE_URL,
+    }
+
+    with requests.Session() as session:
+        print("=== Initial page request ===")
+
+        init_response = session.get(
+            MAIN_PAGE_URL,
+            headers=common_headers,
+            timeout=30,
+        )
+
+        print("status       :", init_response.status_code)
+        print(
+            "content-type :",
+            init_response.headers.get("content-type"),
+        )
+        print("cookies      :", session.cookies.get_dict())
+        print()
+
+        print("=== Timetable POST ===")
+
+        response = session.post(
+            SEARCH_URL,
+            params=params,
+            data=payload,
+            headers=post_headers,
+            timeout=60,
+        )
+
+        print("status       :", response.status_code)
+        print(
+            "content-type :",
+            response.headers.get("content-type"),
+        )
+        print("url          :", response.url)
+        print("bytes        :", len(response.content))
+        print()
+
+        response.raise_for_status()
+
+        # 건국대 서버는 실제 JSON을 반환하면서도
+        # Content-Type을 text/html로 내려준다.
+        text = response.text
+
+        # BOM / 공백 / 서버가 붙인 앞뒤 문자열 등에 대비
+        start = text.find("{")
+        end = text.rfind("}")
+
+        if start == -1 or end == -1 or end < start:
+            print("=== INVALID RESPONSE ===")
+            print(text[:3000])
+
+            raise RuntimeError(
+                "응답에서 JSON 객체를 찾을 수 없습니다."
+            )
+
+        json_text = text[start:end + 1]
+
+        try:
+            data = json.loads(json_text)
+        except json.JSONDecodeError as e:
+            print("=== JSON DECODE FAILED ===")
+            print("error:", e)
+            print(json_text[:3000])
+            raise
+
+    rows = data.get("rows")
+
+    if not isinstance(rows, list):
+        raise RuntimeError(
+            f"'rows'가 list가 아닙니다: {type(rows).__name__}"
+        )
+
+    print(f"parsed rows  : {len(rows)}")
+
+    return data, rows
+
+# ----------------------------------------------------------------------
+# room_nm parser
+# ----------------------------------------------------------------------
+
+DAY_TIME_RE = re.compile(
+    r"^(월|화|수|목|금|토|일)"
+    r"(\d{1,2})-(\d{1,2})"
+)
+
+
+def split_top_level(text: str, separator: str = ","):
+    """
+    괄호 내부의 comma는 무시하고 최상위 comma만 기준으로 분리.
+
+    예:
+        화17-19(온라인(녹화)), 금15-18(새403)
+
+    ->
+        [
+            '화17-19(온라인(녹화))',
+            '금15-18(새403)'
+        ]
+    """
+
+    result = []
+    current = []
+    depth = 0
+
+    for ch in text:
+        if ch == "(":
+            depth += 1
+
+        elif ch == ")":
+            depth = max(0, depth - 1)
+
+        if ch == separator and depth == 0:
+            part = "".join(current).strip()
+
+            if part:
+                result.append(part)
+
+            current = []
+            continue
+
+        current.append(ch)
+
+    part = "".join(current).strip()
+
+    if part:
+        result.append(part)
+
+    return result
+
+
+def first_parenthesized(text: str):
+    """
+    첫 번째 balanced (...) 내용을 가져온다.
+
+    예:
+        '(공C487)(e-러닝)' -> '공C487'
+        '(온라인(녹화))'  -> '온라인(녹화)'
+    """
+
+    start = text.find("(")
+
+    if start == -1:
+        return None
+
+    depth = 0
+
+    for i in range(start, len(text)):
+        ch = text[i]
+
+        if ch == "(":
+            depth += 1
+
+        elif ch == ")":
+            depth -= 1
+
+            if depth == 0:
+                return text[start + 1:i].strip()
+
+    return None
+
+
+def is_physical_room(room: str):
+    if not room:
+        return False
+
+    normalized = room.strip().lower()
+
+    excluded = (
+        "미배정",
+        "온라인",
+        "e-러닝",
+        "e러닝",
+        "이러닝",
+    )
+
+    for word in excluded:
+        if word.lower() in normalized:
+            return False
+
+    return True
+
+
+def parse_schedule_entry(chunk: str):
+    """
+    하나의 일정 문자열 처리.
+
+    예:
+      화13-15(공A1510)
+      금15-18(새403)
+      월16-18(공C487)(e-러닝)
+    """
+
+    chunk = chunk.strip()
+
+    match = DAY_TIME_RE.match(chunk)
+
+    if not match:
+        return None
+
+    day = match.group(1)
+    start_period = int(match.group(2))
+    end_period = int(match.group(3))
+
+    remaining = chunk[match.end():]
+
+    room = first_parenthesized(remaining)
+
+    return {
+        "day": day,
+        "start_period": start_period,
+        "end_period": end_period,
+        "room": room,
+        "raw": chunk,
+    }
+
+
+def parse_room_nm(room_nm: str):
+    """
+    한 강의의 room_nm 전체를 Schedule list로 변환.
+
+    예:
+      '화13-15(공A1510), 목13-15(공A1510)'
+    """
+
+    if not room_nm:
+        return []
+
+    results = []
+
+    for chunk in split_top_level(room_nm):
+        parsed = parse_schedule_entry(chunk)
+
+        if parsed is not None:
+            results.append(parsed)
+
+    return results
+
+
+# ----------------------------------------------------------------------
+# building / room parser
+# ----------------------------------------------------------------------
+
+BUILDING_ROOM_RE = re.compile(
+    r"^(.+?)(\d[\dA-Za-z_-]*)$"
+)
+
+
+def split_building_room(room_code: str):
+    """
+    예:
+        공A1510     -> 공A / 1510
+        공B475      -> 공B / 475
+        신공1214    -> 신공 / 1214
+        상허관104   -> 상허관 / 104
+        공C_B182    -> 공C_B / 182
+    """
+
+    room_code = room_code.strip()
+
+    match = BUILDING_ROOM_RE.match(room_code)
+
+    if not match:
+        return room_code, ""
+
+    building = match.group(1)
+    room = match.group(2)
+
+    return building, room
+
+
+# ----------------------------------------------------------------------
+# Analysis
+# ----------------------------------------------------------------------
+
+def analyze(rows):
+    physical_rooms = set()
+    rooms_by_building = defaultdict(set)
+
+    schedules = []
+
+    ignored_room_values = set()
+
+    for row in rows:
+        raw_room = (row.get("room_nm") or "").strip()
+
+        if not raw_room:
+            continue
+
+        parsed_entries = parse_room_nm(raw_room)
+
+        if not parsed_entries:
+            ignored_room_values.add(raw_room)
+            continue
+
+        for entry in parsed_entries:
+            room_code = entry["room"]
+
+            if not is_physical_room(room_code):
+                if room_code:
+                    ignored_room_values.add(room_code)
+                continue
+
+            room_code = room_code.strip()
+
+            physical_rooms.add(room_code)
+
+            building, room_number = split_building_room(
+                room_code
+            )
+
+            rooms_by_building[building].add(
+                room_number or room_code
+            )
+
+            schedules.append({
+                "room": room_code,
+                "building": building,
+                "room_number": room_number,
+
+                "day": entry["day"],
+                "start_period": entry["start_period"],
+                "end_period": entry["end_period"],
+
+                "open_yy": row.get("open_yy"),
+                "open_sust_nm": row.get("open_sust_nm"),
+
+                "subject_id": row.get("sbjt_id"),
+                "haksu_id": row.get("haksu_id"),
+                "class_no": row.get("clss_no"),
+
+                "subject_name": row.get("typl_nm"),
+                "raw_room_nm": raw_room,
+            })
+
+    normalized_rooms_by_building = {
+        building: sorted(
+            rooms,
+            key=room_sort_key,
+        )
+        for building, rooms
+        in sorted(rooms_by_building.items())
+    }
+
+    return {
+        "physical_rooms": sorted(physical_rooms),
+        "rooms_by_building": normalized_rooms_by_building,
+        "schedules": schedules,
+        "ignored_room_values": sorted(ignored_room_values),
+    }
+
+
+def room_sort_key(value: str):
+    """
+    숫자 호실을 숫자 순으로 정렬.
+    이상한 문자열이 있어도 에러 없이 뒤쪽에 배치.
+    """
+
+    match = re.match(r"^(\d+)(.*)$", value)
+
+    if not match:
+        return (1, value)
+
+    return (
+        0,
+        int(match.group(1)),
+        match.group(2),
+    )
+
+
+# ----------------------------------------------------------------------
+# Output
+# ----------------------------------------------------------------------
+
+def save_json(path: Path, data):
+    path.write_text(
+        json.dumps(
+            data,
+            ensure_ascii=False,
+            indent=2,
+        ),
+        encoding="utf-8",
+    )
+
+
+def print_summary(rows, analysis):
+    physical_rooms = analysis["physical_rooms"]
+    rooms_by_building = analysis["rooms_by_building"]
+    schedules = analysis["schedules"]
+
+    print()
+    print("=" * 70)
+    print("RESULT")
+    print("=" * 70)
+
+    print(f"total rows            : {len(rows)}")
+    print(
+        f"unique physical rooms : "
+        f"{len(physical_rooms)}"
+    )
+    print(
+        f"building prefixes     : "
+        f"{len(rooms_by_building)}"
+    )
+    print(
+        f"schedule assignments  : "
+        f"{len(schedules)}"
+    )
+
+    years = sorted({
+        str(row.get("open_yy"))
+        for row in rows
+        if row.get("open_yy")
+    })
+
+    print(
+        f"open_yy values        : "
+        f"{', '.join(years)}"
+    )
+
+    departments = {
+        row.get("open_sust_nm")
+        for row in rows
+        if row.get("open_sust_nm")
+    }
+
+    print(
+        f"open_sust_nm count    : "
+        f"{len(departments)}"
+    )
+
+    completion_types = sorted({
+        row.get("pobt_div_nm")
+        for row in rows
+        if row.get("pobt_div_nm")
+    })
+
+    print(
+        "pobt_div_nm           : "
+        + ", ".join(completion_types)
+    )
+
+    print()
+    print("=== rooms by building ===")
+
+    for building, rooms in rooms_by_building.items():
+        room_text = ", ".join(rooms)
+
+        print(
+            f"{building} ({len(rooms)}): "
+            f"{room_text}"
+        )
+
+
+def save_outputs(raw, rows, analysis):
+    OUTPUT_DIR.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
+
+    save_json(
+        OUTPUT_DIR / "raw_response.json",
+        raw,
+    )
+
+    save_json(
+        OUTPUT_DIR / "rows.json",
+        rows,
+    )
+
+    save_json(
+        OUTPUT_DIR / "physical_rooms.json",
+        analysis["physical_rooms"],
+    )
+
+    save_json(
+        OUTPUT_DIR / "rooms_by_building.json",
+        analysis["rooms_by_building"],
+    )
+
+    save_json(
+        OUTPUT_DIR / "schedules.json",
+        analysis["schedules"],
+    )
+
+    save_json(
+        OUTPUT_DIR / "ignored_room_values.json",
+        analysis["ignored_room_values"],
+    )
+
+    print()
+    print("=== output files ===")
+
+    for file in sorted(OUTPUT_DIR.iterdir()):
+        print(file)
+
+
+# ----------------------------------------------------------------------
+# Main
+# ----------------------------------------------------------------------
+
+def main():
+    parser = argparse.ArgumentParser(
+        description=(
+            "건국대학교 종합강의시간표에서 "
+            "강의실 및 시간표 정보를 추출한다."
+        )
+    )
+
+    parser.add_argument(
+        "--year",
+        default="2026",
+        help="조회 년도 (default: 2026)",
+    )
+
+    parser.add_argument(
+        "--term",
+        default="B01012",
+        help="학기 코드 (default: B01012)",
+    )
+
+    args = parser.parse_args()
+
+    print("year :", args.year)
+    print("term :", args.term)
+    print()
+
+    raw, rows = fetch_rows(
+        year=args.year,
+        term=args.term,
+    )
+
+    analysis = analyze(rows)
+
+    print_summary(
+        rows,
+        analysis,
+    )
+
+    save_outputs(
+        raw,
+        rows,
+        analysis,
+    )
+
+
+if __name__ == "__main__":
+    main()

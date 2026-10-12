@@ -1,0 +1,2022 @@
+[
+  {
+    "id": "건202",
+    "building": "건",
+    "number": "202"
+  },
+  {
+    "id": "건204",
+    "building": "건",
+    "number": "204"
+  },
+  {
+    "id": "건206",
+    "building": "건",
+    "number": "206"
+  },
+  {
+    "id": "건207",
+    "building": "건",
+    "number": "207"
+  },
+  {
+    "id": "건251",
+    "building": "건",
+    "number": "251"
+  },
+  {
+    "id": "건301",
+    "building": "건",
+    "number": "301"
+  },
+  {
+    "id": "건302",
+    "building": "건",
+    "number": "302"
+  },
+  {
+    "id": "건303",
+    "building": "건",
+    "number": "303"
+  },
+  {
+    "id": "건304",
+    "building": "건",
+    "number": "304"
+  },
+  {
+    "id": "건305",
+    "building": "건",
+    "number": "305"
+  },
+  {
+    "id": "건306",
+    "building": "건",
+    "number": "306"
+  },
+  {
+    "id": "건308",
+    "building": "건",
+    "number": "308"
+  },
+  {
+    "id": "건309",
+    "building": "건",
+    "number": "309"
+  },
+  {
+    "id": "건310",
+    "building": "건",
+    "number": "310"
+  },
+  {
+    "id": "건311",
+    "building": "건",
+    "number": "311"
+  },
+  {
+    "id": "건401",
+    "building": "건",
+    "number": "401"
+  },
+  {
+    "id": "건402",
+    "building": "건",
+    "number": "402"
+  },
+  {
+    "id": "건403",
+    "building": "건",
+    "number": "403"
+  },
+  {
+    "id": "건404",
+    "building": "건",
+    "number": "404"
+  },
+  {
+    "id": "건405",
+    "building": "건",
+    "number": "405"
+  },
+  {
+    "id": "건406",
+    "building": "건",
+    "number": "406"
+  },
+  {
+    "id": "건407",
+    "building": "건",
+    "number": "407"
+  },
+  {
+    "id": "건408",
+    "building": "건",
+    "number": "408"
+  },
+  {
+    "id": "건409",
+    "building": "건",
+    "number": "409"
+  },
+  {
+    "id": "경영101",
+    "building": "경영",
+    "number": "101"
+  },
+  {
+    "id": "경영103",
+    "building": "경영",
+    "number": "103"
+  },
+  {
+    "id": "경영201",
+    "building": "경영",
+    "number": "201"
+  },
+  {
+    "id": "경영202",
+    "building": "경영",
+    "number": "202"
+  },
+  {
+    "id": "경영203",
+    "building": "경영",
+    "number": "203"
+  },
+  {
+    "id": "경영204",
+    "building": "경영",
+    "number": "204"
+  },
+  {
+    "id": "경영205",
+    "building": "경영",
+    "number": "205"
+  },
+  {
+    "id": "경영206",
+    "building": "경영",
+    "number": "206"
+  },
+  {
+    "id": "경영207",
+    "building": "경영",
+    "number": "207"
+  },
+  {
+    "id": "경영215",
+    "building": "경영",
+    "number": "215"
+  },
+  {
+    "id": "경영304",
+    "building": "경영",
+    "number": "304"
+  },
+  {
+    "id": "경영305",
+    "building": "경영",
+    "number": "305"
+  },
+  {
+    "id": "경영306",
+    "building": "경영",
+    "number": "306"
+  },
+  {
+    "id": "경영537",
+    "building": "경영",
+    "number": "537"
+  },
+  {
+    "id": "공A202",
+    "building": "공A",
+    "number": "202"
+  },
+  {
+    "id": "공A204",
+    "building": "공A",
+    "number": "204"
+  },
+  {
+    "id": "공A303",
+    "building": "공A",
+    "number": "303"
+  },
+  {
+    "id": "공A402",
+    "building": "공A",
+    "number": "402"
+  },
+  {
+    "id": "공A403",
+    "building": "공A",
+    "number": "403"
+  },
+  {
+    "id": "공A404",
+    "building": "공A",
+    "number": "404"
+  },
+  {
+    "id": "공A406",
+    "building": "공A",
+    "number": "406"
+  },
+  {
+    "id": "공A411",
+    "building": "공A",
+    "number": "411"
+  },
+  {
+    "id": "공A506",
+    "building": "공A",
+    "number": "506"
+  },
+  {
+    "id": "공A601",
+    "building": "공A",
+    "number": "601"
+  },
+  {
+    "id": "공A602",
+    "building": "공A",
+    "number": "602"
+  },
+  {
+    "id": "공A1510",
+    "building": "공A",
+    "number": "1510"
+  },
+  {
+    "id": "공B155",
+    "building": "공B",
+    "number": "155"
+  },
+  {
+    "id": "공B156",
+    "building": "공B",
+    "number": "156"
+  },
+  {
+    "id": "공B165",
+    "building": "공B",
+    "number": "165"
+  },
+  {
+    "id": "공B170",
+    "building": "공B",
+    "number": "170"
+  },
+  {
+    "id": "공B256",
+    "building": "공B",
+    "number": "256"
+  },
+  {
+    "id": "공B258",
+    "building": "공B",
+    "number": "258"
+  },
+  {
+    "id": "공B263-1",
+    "building": "공B",
+    "number": "263-1"
+  },
+  {
+    "id": "공B268",
+    "building": "공B",
+    "number": "268"
+  },
+  {
+    "id": "공B352",
+    "building": "공B",
+    "number": "352"
+  },
+  {
+    "id": "공B360",
+    "building": "공B",
+    "number": "360"
+  },
+  {
+    "id": "공B361",
+    "building": "공B",
+    "number": "361"
+  },
+  {
+    "id": "공B364",
+    "building": "공B",
+    "number": "364"
+  },
+  {
+    "id": "공B366",
+    "building": "공B",
+    "number": "366"
+  },
+  {
+    "id": "공B368",
+    "building": "공B",
+    "number": "368"
+  },
+  {
+    "id": "공B455",
+    "building": "공B",
+    "number": "455"
+  },
+  {
+    "id": "공B456",
+    "building": "공B",
+    "number": "456"
+  },
+  {
+    "id": "공B458",
+    "building": "공B",
+    "number": "458"
+  },
+  {
+    "id": "공B460",
+    "building": "공B",
+    "number": "460"
+  },
+  {
+    "id": "공B473",
+    "building": "공B",
+    "number": "473"
+  },
+  {
+    "id": "공B475",
+    "building": "공B",
+    "number": "475"
+  },
+  {
+    "id": "공B551",
+    "building": "공B",
+    "number": "551"
+  },
+  {
+    "id": "공B552",
+    "building": "공B",
+    "number": "552"
+  },
+  {
+    "id": "공B554",
+    "building": "공B",
+    "number": "554"
+  },
+  {
+    "id": "공B555",
+    "building": "공B",
+    "number": "555"
+  },
+  {
+    "id": "공B556",
+    "building": "공B",
+    "number": "556"
+  },
+  {
+    "id": "공B558",
+    "building": "공B",
+    "number": "558"
+  },
+  {
+    "id": "공B559-1",
+    "building": "공B",
+    "number": "559-1"
+  },
+  {
+    "id": "공B560",
+    "building": "공B",
+    "number": "560"
+  },
+  {
+    "id": "공B562",
+    "building": "공B",
+    "number": "562"
+  },
+  {
+    "id": "공B564",
+    "building": "공B",
+    "number": "564"
+  },
+  {
+    "id": "공B565",
+    "building": "공B",
+    "number": "565"
+  },
+  {
+    "id": "공B566",
+    "building": "공B",
+    "number": "566"
+  },
+  {
+    "id": "공C183",
+    "building": "공C",
+    "number": "183"
+  },
+  {
+    "id": "공C192",
+    "building": "공C",
+    "number": "192"
+  },
+  {
+    "id": "공C481",
+    "building": "공C",
+    "number": "481"
+  },
+  {
+    "id": "공C481-1",
+    "building": "공C",
+    "number": "481-1"
+  },
+  {
+    "id": "공C482",
+    "building": "공C",
+    "number": "482"
+  },
+  {
+    "id": "공C485",
+    "building": "공C",
+    "number": "485"
+  },
+  {
+    "id": "공C486",
+    "building": "공C",
+    "number": "486"
+  },
+  {
+    "id": "공C487",
+    "building": "공C",
+    "number": "487"
+  },
+  {
+    "id": "공C_B182",
+    "building": "공C_B",
+    "number": "182"
+  },
+  {
+    "id": "공D134",
+    "building": "공D",
+    "number": "134"
+  },
+  {
+    "id": "공D231",
+    "building": "공D",
+    "number": "231"
+  },
+  {
+    "id": "공D232",
+    "building": "공D",
+    "number": "232"
+  },
+  {
+    "id": "공D233",
+    "building": "공D",
+    "number": "233"
+  },
+  {
+    "id": "공D234",
+    "building": "공D",
+    "number": "234"
+  },
+  {
+    "id": "공별205",
+    "building": "공별",
+    "number": "205"
+  },
+  {
+    "id": "공예101",
+    "building": "공예",
+    "number": "101"
+  },
+  {
+    "id": "공예102",
+    "building": "공예",
+    "number": "102"
+  },
+  {
+    "id": "공예104",
+    "building": "공예",
+    "number": "104"
+  },
+  {
+    "id": "공예201",
+    "building": "공예",
+    "number": "201"
+  },
+  {
+    "id": "공예202-1",
+    "building": "공예",
+    "number": "202-1"
+  },
+  {
+    "id": "공예203",
+    "building": "공예",
+    "number": "203"
+  },
+  {
+    "id": "공예204",
+    "building": "공예",
+    "number": "204"
+  },
+  {
+    "id": "농501",
+    "building": "농",
+    "number": "501"
+  },
+  {
+    "id": "농507",
+    "building": "농",
+    "number": "507"
+  },
+  {
+    "id": "동204",
+    "building": "동",
+    "number": "204"
+  },
+  {
+    "id": "동301",
+    "building": "동",
+    "number": "301"
+  },
+  {
+    "id": "동302",
+    "building": "동",
+    "number": "302"
+  },
+  {
+    "id": "동303",
+    "building": "동",
+    "number": "303"
+  },
+  {
+    "id": "동304",
+    "building": "동",
+    "number": "304"
+  },
+  {
+    "id": "동309",
+    "building": "동",
+    "number": "309"
+  },
+  {
+    "id": "동319",
+    "building": "동",
+    "number": "319"
+  },
+  {
+    "id": "동320",
+    "building": "동",
+    "number": "320"
+  },
+  {
+    "id": "동321",
+    "building": "동",
+    "number": "321"
+  },
+  {
+    "id": "동603",
+    "building": "동",
+    "number": "603"
+  },
+  {
+    "id": "동710-3",
+    "building": "동",
+    "number": "710-3"
+  },
+  {
+    "id": "동710-4",
+    "building": "동",
+    "number": "710-4"
+  },
+  {
+    "id": "동710-5",
+    "building": "동",
+    "number": "710-5"
+  },
+  {
+    "id": "동711",
+    "building": "동",
+    "number": "711"
+  },
+  {
+    "id": "동801",
+    "building": "동",
+    "number": "801"
+  },
+  {
+    "id": "동L423",
+    "building": "동L",
+    "number": "423"
+  },
+  {
+    "id": "문204",
+    "building": "문",
+    "number": "204"
+  },
+  {
+    "id": "문208",
+    "building": "문",
+    "number": "208"
+  },
+  {
+    "id": "문209",
+    "building": "문",
+    "number": "209"
+  },
+  {
+    "id": "문210",
+    "building": "문",
+    "number": "210"
+  },
+  {
+    "id": "문211",
+    "building": "문",
+    "number": "211"
+  },
+  {
+    "id": "문212",
+    "building": "문",
+    "number": "212"
+  },
+  {
+    "id": "문213",
+    "building": "문",
+    "number": "213"
+  },
+  {
+    "id": "문302-1",
+    "building": "문",
+    "number": "302-1"
+  },
+  {
+    "id": "문303",
+    "building": "문",
+    "number": "303"
+  },
+  {
+    "id": "문304",
+    "building": "문",
+    "number": "304"
+  },
+  {
+    "id": "문305",
+    "building": "문",
+    "number": "305"
+  },
+  {
+    "id": "문306",
+    "building": "문",
+    "number": "306"
+  },
+  {
+    "id": "문307",
+    "building": "문",
+    "number": "307"
+  },
+  {
+    "id": "문308",
+    "building": "문",
+    "number": "308"
+  },
+  {
+    "id": "문309",
+    "building": "문",
+    "number": "309"
+  },
+  {
+    "id": "부102",
+    "building": "부",
+    "number": "102"
+  },
+  {
+    "id": "부103",
+    "building": "부",
+    "number": "103"
+  },
+  {
+    "id": "부201",
+    "building": "부",
+    "number": "201"
+  },
+  {
+    "id": "부202",
+    "building": "부",
+    "number": "202"
+  },
+  {
+    "id": "부301",
+    "building": "부",
+    "number": "301"
+  },
+  {
+    "id": "부302",
+    "building": "부",
+    "number": "302"
+  },
+  {
+    "id": "부303",
+    "building": "부",
+    "number": "303"
+  },
+  {
+    "id": "부305",
+    "building": "부",
+    "number": "305"
+  },
+  {
+    "id": "부401",
+    "building": "부",
+    "number": "401"
+  },
+  {
+    "id": "사105",
+    "building": "사",
+    "number": "105"
+  },
+  {
+    "id": "사108",
+    "building": "사",
+    "number": "108"
+  },
+  {
+    "id": "사112",
+    "building": "사",
+    "number": "112"
+  },
+  {
+    "id": "사113",
+    "building": "사",
+    "number": "113"
+  },
+  {
+    "id": "사117",
+    "building": "사",
+    "number": "117"
+  },
+  {
+    "id": "사201",
+    "building": "사",
+    "number": "201"
+  },
+  {
+    "id": "사216",
+    "building": "사",
+    "number": "216"
+  },
+  {
+    "id": "사217",
+    "building": "사",
+    "number": "217"
+  },
+  {
+    "id": "사218",
+    "building": "사",
+    "number": "218"
+  },
+  {
+    "id": "사225",
+    "building": "사",
+    "number": "225"
+  },
+  {
+    "id": "사301",
+    "building": "사",
+    "number": "301"
+  },
+  {
+    "id": "사301-1",
+    "building": "사",
+    "number": "301-1"
+  },
+  {
+    "id": "사311",
+    "building": "사",
+    "number": "311"
+  },
+  {
+    "id": "사312",
+    "building": "사",
+    "number": "312"
+  },
+  {
+    "id": "사314",
+    "building": "사",
+    "number": "314"
+  },
+  {
+    "id": "사320",
+    "building": "사",
+    "number": "320"
+  },
+  {
+    "id": "사327",
+    "building": "사",
+    "number": "327"
+  },
+  {
+    "id": "산학102",
+    "building": "산학",
+    "number": "102"
+  },
+  {
+    "id": "산학106",
+    "building": "산학",
+    "number": "106"
+  },
+  {
+    "id": "산학107",
+    "building": "산학",
+    "number": "107"
+  },
+  {
+    "id": "산학114",
+    "building": "산학",
+    "number": "114"
+  },
+  {
+    "id": "산학201",
+    "building": "산학",
+    "number": "201"
+  },
+  {
+    "id": "산학202",
+    "building": "산학",
+    "number": "202"
+  },
+  {
+    "id": "산학208",
+    "building": "산학",
+    "number": "208"
+  },
+  {
+    "id": "산학210",
+    "building": "산학",
+    "number": "210"
+  },
+  {
+    "id": "산학211",
+    "building": "산학",
+    "number": "211"
+  },
+  {
+    "id": "산학212",
+    "building": "산학",
+    "number": "212"
+  },
+  {
+    "id": "산학213",
+    "building": "산학",
+    "number": "213"
+  },
+  {
+    "id": "산학214",
+    "building": "산학",
+    "number": "214"
+  },
+  {
+    "id": "산학215",
+    "building": "산학",
+    "number": "215"
+  },
+  {
+    "id": "산학216",
+    "building": "산학",
+    "number": "216"
+  },
+  {
+    "id": "산학217",
+    "building": "산학",
+    "number": "217"
+  },
+  {
+    "id": "산학218",
+    "building": "산학",
+    "number": "218"
+  },
+  {
+    "id": "산학219",
+    "building": "산학",
+    "number": "219"
+  },
+  {
+    "id": "산학220",
+    "building": "산학",
+    "number": "220"
+  },
+  {
+    "id": "산학221",
+    "building": "산학",
+    "number": "221"
+  },
+  {
+    "id": "산학222",
+    "building": "산학",
+    "number": "222"
+  },
+  {
+    "id": "산학223",
+    "building": "산학",
+    "number": "223"
+  },
+  {
+    "id": "산학317",
+    "building": "산학",
+    "number": "317"
+  },
+  {
+    "id": "산학320",
+    "building": "산학",
+    "number": "320"
+  },
+  {
+    "id": "산학322",
+    "building": "산학",
+    "number": "322"
+  },
+  {
+    "id": "산학508",
+    "building": "산학",
+    "number": "508"
+  },
+  {
+    "id": "산학704",
+    "building": "산학",
+    "number": "704"
+  },
+  {
+    "id": "산학708",
+    "building": "산학",
+    "number": "708"
+  },
+  {
+    "id": "산학711",
+    "building": "산학",
+    "number": "711"
+  },
+  {
+    "id": "산학713",
+    "building": "산학",
+    "number": "713"
+  },
+  {
+    "id": "산학816",
+    "building": "산학",
+    "number": "816"
+  },
+  {
+    "id": "산학817",
+    "building": "산학",
+    "number": "817"
+  },
+  {
+    "id": "상허관101",
+    "building": "상허관",
+    "number": "101"
+  },
+  {
+    "id": "상허관104",
+    "building": "상허관",
+    "number": "104"
+  },
+  {
+    "id": "상허관106",
+    "building": "상허관",
+    "number": "106"
+  },
+  {
+    "id": "상허관107",
+    "building": "상허관",
+    "number": "107"
+  },
+  {
+    "id": "상허관108",
+    "building": "상허관",
+    "number": "108"
+  },
+  {
+    "id": "상허관109",
+    "building": "상허관",
+    "number": "109"
+  },
+  {
+    "id": "상허관123",
+    "building": "상허관",
+    "number": "123"
+  },
+  {
+    "id": "상허관217",
+    "building": "상허관",
+    "number": "217"
+  },
+  {
+    "id": "상허관218",
+    "building": "상허관",
+    "number": "218"
+  },
+  {
+    "id": "상허관219",
+    "building": "상허관",
+    "number": "219"
+  },
+  {
+    "id": "상허관220",
+    "building": "상허관",
+    "number": "220"
+  },
+  {
+    "id": "상허관221",
+    "building": "상허관",
+    "number": "221"
+  },
+  {
+    "id": "상허관222",
+    "building": "상허관",
+    "number": "222"
+  },
+  {
+    "id": "상허관224",
+    "building": "상허관",
+    "number": "224"
+  },
+  {
+    "id": "상허관303",
+    "building": "상허관",
+    "number": "303"
+  },
+  {
+    "id": "상허관305",
+    "building": "상허관",
+    "number": "305"
+  },
+  {
+    "id": "상허관316",
+    "building": "상허관",
+    "number": "316"
+  },
+  {
+    "id": "상허관317",
+    "building": "상허관",
+    "number": "317"
+  },
+  {
+    "id": "상허관318",
+    "building": "상허관",
+    "number": "318"
+  },
+  {
+    "id": "상허관319",
+    "building": "상허관",
+    "number": "319"
+  },
+  {
+    "id": "상허관320",
+    "building": "상허관",
+    "number": "320"
+  },
+  {
+    "id": "상허관324",
+    "building": "상허관",
+    "number": "324"
+  },
+  {
+    "id": "상허관406",
+    "building": "상허관",
+    "number": "406"
+  },
+  {
+    "id": "상허관425",
+    "building": "상허관",
+    "number": "425"
+  },
+  {
+    "id": "새203",
+    "building": "새",
+    "number": "203"
+  },
+  {
+    "id": "새204",
+    "building": "새",
+    "number": "204"
+  },
+  {
+    "id": "새301",
+    "building": "새",
+    "number": "301"
+  },
+  {
+    "id": "새302",
+    "building": "새",
+    "number": "302"
+  },
+  {
+    "id": "새303",
+    "building": "새",
+    "number": "303"
+  },
+  {
+    "id": "새304",
+    "building": "새",
+    "number": "304"
+  },
+  {
+    "id": "새402",
+    "building": "새",
+    "number": "402"
+  },
+  {
+    "id": "새403",
+    "building": "새",
+    "number": "403"
+  },
+  {
+    "id": "새502",
+    "building": "새",
+    "number": "502"
+  },
+  {
+    "id": "새503",
+    "building": "새",
+    "number": "503"
+  },
+  {
+    "id": "새504",
+    "building": "새",
+    "number": "504"
+  },
+  {
+    "id": "새601",
+    "building": "새",
+    "number": "601"
+  },
+  {
+    "id": "새602",
+    "building": "새",
+    "number": "602"
+  },
+  {
+    "id": "새1211",
+    "building": "새",
+    "number": "1211"
+  },
+  {
+    "id": "생101",
+    "building": "생",
+    "number": "101"
+  },
+  {
+    "id": "생120",
+    "building": "생",
+    "number": "120"
+  },
+  {
+    "id": "생151",
+    "building": "생",
+    "number": "151"
+  },
+  {
+    "id": "생251",
+    "building": "생",
+    "number": "251"
+  },
+  {
+    "id": "생252",
+    "building": "생",
+    "number": "252"
+  },
+  {
+    "id": "생253",
+    "building": "생",
+    "number": "253"
+  },
+  {
+    "id": "생254",
+    "building": "생",
+    "number": "254"
+  },
+  {
+    "id": "생301",
+    "building": "생",
+    "number": "301"
+  },
+  {
+    "id": "생351",
+    "building": "생",
+    "number": "351"
+  },
+  {
+    "id": "생352",
+    "building": "생",
+    "number": "352"
+  },
+  {
+    "id": "생402",
+    "building": "생",
+    "number": "402"
+  },
+  {
+    "id": "생451",
+    "building": "생",
+    "number": "451"
+  },
+  {
+    "id": "생453",
+    "building": "생",
+    "number": "453"
+  },
+  {
+    "id": "생454",
+    "building": "생",
+    "number": "454"
+  },
+  {
+    "id": "생455",
+    "building": "생",
+    "number": "455"
+  },
+  {
+    "id": "생456",
+    "building": "생",
+    "number": "456"
+  },
+  {
+    "id": "성신101",
+    "building": "성신",
+    "number": "101"
+  },
+  {
+    "id": "성신102",
+    "building": "성신",
+    "number": "102"
+  },
+  {
+    "id": "성신106",
+    "building": "성신",
+    "number": "106"
+  },
+  {
+    "id": "성신107",
+    "building": "성신",
+    "number": "107"
+  },
+  {
+    "id": "성신108",
+    "building": "성신",
+    "number": "108"
+  },
+  {
+    "id": "성신109",
+    "building": "성신",
+    "number": "109"
+  },
+  {
+    "id": "성신201",
+    "building": "성신",
+    "number": "201"
+  },
+  {
+    "id": "성신202",
+    "building": "성신",
+    "number": "202"
+  },
+  {
+    "id": "성신204",
+    "building": "성신",
+    "number": "204"
+  },
+  {
+    "id": "성신205",
+    "building": "성신",
+    "number": "205"
+  },
+  {
+    "id": "성신301",
+    "building": "성신",
+    "number": "301"
+  },
+  {
+    "id": "성신302",
+    "building": "성신",
+    "number": "302"
+  },
+  {
+    "id": "성신303",
+    "building": "성신",
+    "number": "303"
+  },
+  {
+    "id": "성신304",
+    "building": "성신",
+    "number": "304"
+  },
+  {
+    "id": "성신305",
+    "building": "성신",
+    "number": "305"
+  },
+  {
+    "id": "성신401",
+    "building": "성신",
+    "number": "401"
+  },
+  {
+    "id": "성신402",
+    "building": "성신",
+    "number": "402"
+  },
+  {
+    "id": "성신403",
+    "building": "성신",
+    "number": "403"
+  },
+  {
+    "id": "성신404",
+    "building": "성신",
+    "number": "404"
+  },
+  {
+    "id": "성신405",
+    "building": "성신",
+    "number": "405"
+  },
+  {
+    "id": "성신406",
+    "building": "성신",
+    "number": "406"
+  },
+  {
+    "id": "성신407",
+    "building": "성신",
+    "number": "407"
+  },
+  {
+    "id": "성신504",
+    "building": "성신",
+    "number": "504"
+  },
+  {
+    "id": "수105-1",
+    "building": "수",
+    "number": "105-1"
+  },
+  {
+    "id": "수105-2",
+    "building": "수",
+    "number": "105-2"
+  },
+  {
+    "id": "수106",
+    "building": "수",
+    "number": "106"
+  },
+  {
+    "id": "수107",
+    "building": "수",
+    "number": "107"
+  },
+  {
+    "id": "수206",
+    "building": "수",
+    "number": "206"
+  },
+  {
+    "id": "수207",
+    "building": "수",
+    "number": "207"
+  },
+  {
+    "id": "수216",
+    "building": "수",
+    "number": "216"
+  },
+  {
+    "id": "수306",
+    "building": "수",
+    "number": "306"
+  },
+  {
+    "id": "수307",
+    "building": "수",
+    "number": "307"
+  },
+  {
+    "id": "수408",
+    "building": "수",
+    "number": "408"
+  },
+  {
+    "id": "수409",
+    "building": "수",
+    "number": "409"
+  },
+  {
+    "id": "수410",
+    "building": "수",
+    "number": "410"
+  },
+  {
+    "id": "수509",
+    "building": "수",
+    "number": "509"
+  },
+  {
+    "id": "수510",
+    "building": "수",
+    "number": "510"
+  },
+  {
+    "id": "수511",
+    "building": "수",
+    "number": "511"
+  },
+  {
+    "id": "수515",
+    "building": "수",
+    "number": "515"
+  },
+  {
+    "id": "신공104",
+    "building": "신공",
+    "number": "104"
+  },
+  {
+    "id": "신공307",
+    "building": "신공",
+    "number": "307"
+  },
+  {
+    "id": "신공308",
+    "building": "신공",
+    "number": "308"
+  },
+  {
+    "id": "신공408",
+    "building": "신공",
+    "number": "408"
+  },
+  {
+    "id": "신공415",
+    "building": "신공",
+    "number": "415"
+  },
+  {
+    "id": "신공507",
+    "building": "신공",
+    "number": "507"
+  },
+  {
+    "id": "신공513",
+    "building": "신공",
+    "number": "513"
+  },
+  {
+    "id": "신공514",
+    "building": "신공",
+    "number": "514"
+  },
+  {
+    "id": "신공613",
+    "building": "신공",
+    "number": "613"
+  },
+  {
+    "id": "신공614",
+    "building": "신공",
+    "number": "614"
+  },
+  {
+    "id": "신공716",
+    "building": "신공",
+    "number": "716"
+  },
+  {
+    "id": "신공807",
+    "building": "신공",
+    "number": "807"
+  },
+  {
+    "id": "신공813",
+    "building": "신공",
+    "number": "813"
+  },
+  {
+    "id": "신공913",
+    "building": "신공",
+    "number": "913"
+  },
+  {
+    "id": "신공1017",
+    "building": "신공",
+    "number": "1017"
+  },
+  {
+    "id": "신공1113",
+    "building": "신공",
+    "number": "1113"
+  },
+  {
+    "id": "신공1201",
+    "building": "신공",
+    "number": "1201"
+  },
+  {
+    "id": "신공1203",
+    "building": "신공",
+    "number": "1203"
+  },
+  {
+    "id": "신공1214",
+    "building": "신공",
+    "number": "1214"
+  },
+  {
+    "id": "신공B106",
+    "building": "신공B",
+    "number": "106"
+  },
+  {
+    "id": "연구동103",
+    "building": "연구동",
+    "number": "103"
+  },
+  {
+    "id": "예102",
+    "building": "예",
+    "number": "102"
+  },
+  {
+    "id": "예103",
+    "building": "예",
+    "number": "103"
+  },
+  {
+    "id": "예201",
+    "building": "예",
+    "number": "201"
+  },
+  {
+    "id": "예219",
+    "building": "예",
+    "number": "219"
+  },
+  {
+    "id": "예220",
+    "building": "예",
+    "number": "220"
+  },
+  {
+    "id": "예221",
+    "building": "예",
+    "number": "221"
+  },
+  {
+    "id": "예222",
+    "building": "예",
+    "number": "222"
+  },
+  {
+    "id": "예304",
+    "building": "예",
+    "number": "304"
+  },
+  {
+    "id": "예306",
+    "building": "예",
+    "number": "306"
+  },
+  {
+    "id": "예308",
+    "building": "예",
+    "number": "308"
+  },
+  {
+    "id": "예310",
+    "building": "예",
+    "number": "310"
+  },
+  {
+    "id": "예401",
+    "building": "예",
+    "number": "401"
+  },
+  {
+    "id": "예402",
+    "building": "예",
+    "number": "402"
+  },
+  {
+    "id": "예409",
+    "building": "예",
+    "number": "409"
+  },
+  {
+    "id": "예410",
+    "building": "예",
+    "number": "410"
+  },
+  {
+    "id": "예412",
+    "building": "예",
+    "number": "412"
+  },
+  {
+    "id": "예413",
+    "building": "예",
+    "number": "413"
+  },
+  {
+    "id": "예414",
+    "building": "예",
+    "number": "414"
+  },
+  {
+    "id": "예415",
+    "building": "예",
+    "number": "415"
+  },
+  {
+    "id": "예501",
+    "building": "예",
+    "number": "501"
+  },
+  {
+    "id": "예502",
+    "building": "예",
+    "number": "502"
+  },
+  {
+    "id": "예511",
+    "building": "예",
+    "number": "511"
+  },
+  {
+    "id": "예520",
+    "building": "예",
+    "number": "520"
+  },
+  {
+    "id": "예521",
+    "building": "예",
+    "number": "521"
+  },
+  {
+    "id": "예523",
+    "building": "예",
+    "number": "523"
+  },
+  {
+    "id": "예601",
+    "building": "예",
+    "number": "601"
+  },
+  {
+    "id": "예613",
+    "building": "예",
+    "number": "613"
+  },
+  {
+    "id": "예615",
+    "building": "예",
+    "number": "615"
+  },
+  {
+    "id": "예618",
+    "building": "예",
+    "number": "618"
+  },
+  {
+    "id": "예619",
+    "building": "예",
+    "number": "619"
+  },
+  {
+    "id": "예620",
+    "building": "예",
+    "number": "620"
+  },
+  {
+    "id": "예621",
+    "building": "예",
+    "number": "621"
+  },
+  {
+    "id": "예622",
+    "building": "예",
+    "number": "622"
+  },
+  {
+    "id": "예623",
+    "building": "예",
+    "number": "623"
+  },
+  {
+    "id": "예701",
+    "building": "예",
+    "number": "701"
+  },
+  {
+    "id": "예702",
+    "building": "예",
+    "number": "702"
+  },
+  {
+    "id": "예715",
+    "building": "예",
+    "number": "715"
+  },
+  {
+    "id": "예719",
+    "building": "예",
+    "number": "719"
+  },
+  {
+    "id": "예720",
+    "building": "예",
+    "number": "720"
+  },
+  {
+    "id": "예721",
+    "building": "예",
+    "number": "721"
+  },
+  {
+    "id": "예801",
+    "building": "예",
+    "number": "801"
+  },
+  {
+    "id": "예802",
+    "building": "예",
+    "number": "802"
+  },
+  {
+    "id": "예816",
+    "building": "예",
+    "number": "816"
+  },
+  {
+    "id": "예821",
+    "building": "예",
+    "number": "821"
+  },
+  {
+    "id": "예822",
+    "building": "예",
+    "number": "822"
+  },
+  {
+    "id": "예823",
+    "building": "예",
+    "number": "823"
+  },
+  {
+    "id": "예824",
+    "building": "예",
+    "number": "824"
+  },
+  {
+    "id": "예904",
+    "building": "예",
+    "number": "904"
+  },
+  {
+    "id": "예1004",
+    "building": "예",
+    "number": "1004"
+  },
+  {
+    "id": "예1007",
+    "building": "예",
+    "number": "1007"
+  },
+  {
+    "id": "예1008",
+    "building": "예",
+    "number": "1008"
+  },
+  {
+    "id": "예B101",
+    "building": "예B",
+    "number": "101"
+  },
+  {
+    "id": "예B103",
+    "building": "예B",
+    "number": "103"
+  },
+  {
+    "id": "이101",
+    "building": "이",
+    "number": "101"
+  },
+  {
+    "id": "이103",
+    "building": "이",
+    "number": "103"
+  },
+  {
+    "id": "이105",
+    "building": "이",
+    "number": "105"
+  },
+  {
+    "id": "이108",
+    "building": "이",
+    "number": "108"
+  },
+  {
+    "id": "이124",
+    "building": "이",
+    "number": "124"
+  },
+  {
+    "id": "이201",
+    "building": "이",
+    "number": "201"
+  },
+  {
+    "id": "이202",
+    "building": "이",
+    "number": "202"
+  },
+  {
+    "id": "이203",
+    "building": "이",
+    "number": "203"
+  },
+  {
+    "id": "이405",
+    "building": "이",
+    "number": "405"
+  },
+  {
+    "id": "이410",
+    "building": "이",
+    "number": "410"
+  },
+  {
+    "id": "이505",
+    "building": "이",
+    "number": "505"
+  },
+  {
+    "id": "이615",
+    "building": "이",
+    "number": "615"
+  },
+  {
+    "id": "이709",
+    "building": "이",
+    "number": "709"
+  },
+  {
+    "id": "이714",
+    "building": "이",
+    "number": "714"
+  },
+  {
+    "id": "종강101",
+    "building": "종강",
+    "number": "101"
+  },
+  {
+    "id": "종강102",
+    "building": "종강",
+    "number": "102"
+  },
+  {
+    "id": "종강113",
+    "building": "종강",
+    "number": "113"
+  },
+  {
+    "id": "종강114",
+    "building": "종강",
+    "number": "114"
+  },
+  {
+    "id": "종강201",
+    "building": "종강",
+    "number": "201"
+  },
+  {
+    "id": "종강202",
+    "building": "종강",
+    "number": "202"
+  },
+  {
+    "id": "종강203",
+    "building": "종강",
+    "number": "203"
+  },
+  {
+    "id": "종강204",
+    "building": "종강",
+    "number": "204"
+  },
+  {
+    "id": "종강208",
+    "building": "종강",
+    "number": "208"
+  },
+  {
+    "id": "종강209",
+    "building": "종강",
+    "number": "209"
+  },
+  {
+    "id": "종강210",
+    "building": "종강",
+    "number": "210"
+  },
+  {
+    "id": "중장비102",
+    "building": "중장비",
+    "number": "102"
+  },
+  {
+    "id": "중장비306",
+    "building": "중장비",
+    "number": "306"
+  },
+  {
+    "id": "창103",
+    "building": "창",
+    "number": "103"
+  },
+  {
+    "id": "창104",
+    "building": "창",
+    "number": "104"
+  },
+  {
+    "id": "창106",
+    "building": "창",
+    "number": "106"
+  },
+  {
+    "id": "창107",
+    "building": "창",
+    "number": "107"
+  },
+  {
+    "id": "창108",
+    "building": "창",
+    "number": "108"
+  },
+  {
+    "id": "창111",
+    "building": "창",
+    "number": "111"
+  },
+  {
+    "id": "창112",
+    "building": "창",
+    "number": "112"
+  },
+  {
+    "id": "창113",
+    "building": "창",
+    "number": "113"
+  },
+  {
+    "id": "창113-1",
+    "building": "창",
+    "number": "113-1"
+  },
+  {
+    "id": "창402",
+    "building": "창",
+    "number": "402"
+  },
+  {
+    "id": "창403",
+    "building": "창",
+    "number": "403"
+  },
+  {
+    "id": "체육관107",
+    "building": "체육관",
+    "number": "107"
+  },
+  {
+    "id": "체육관114",
+    "building": "체육관",
+    "number": "114"
+  },
+  {
+    "id": "체육관116",
+    "building": "체육관",
+    "number": "116"
+  },
+  {
+    "id": "체육관117",
+    "building": "체육관",
+    "number": "117"
+  },
+  {
+    "id": "체육관206",
+    "building": "체육관",
+    "number": "206"
+  }
+]

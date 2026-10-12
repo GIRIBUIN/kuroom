@@ -1,0 +1,32 @@
+=== V0 BASELINE BENCHMARK ===
+
+data
+  rooms       : 404
+  schedules   : 3087
+  load        : 42.517 ms
+
+engine
+  build       : 3.870 ms
+
+query results
+  mon_all_0900             301 rooms
+  mon_gongb_1520_60         17 rooms
+  mon_sae_1520_60            1 rooms
+  tue_all_1200_60          240 rooms
+  wed_all_1330_60          201 rooms
+  wed_gongb_1330_120        12 rooms
+  thu_all_1600_90          219 rooms
+  fri_all_1800_60          395 rooms
+
+search
+  iterations  : 1000
+  query types : 8
+  total calls : 8000
+  total       : 14429.172 ms
+  mean        : 1801.777 us
+  median      : 2166.499 us
+  p95         : 3804.080 us
+  p99         : 4989.972 us
+  min         : 109.804 us
+  max         : 9495.316 us
+  checksum    : 1386000

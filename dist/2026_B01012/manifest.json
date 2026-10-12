@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "university": "konkuk",
+  "year": "2026",
+  "term": "B01012",
+  "timezone": "Asia/Seoul",
+  "generated_at": "2026-10-12T20:13:54+09:00",
+  "time_grid": {
+    "day_start": "09:00",
+    "period_minutes": 30,
+    "default_last_period": 19
+  },
+  "room_count": 404,
+  "schedule_count": 3087
+}
