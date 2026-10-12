@@ -145,10 +145,13 @@ select, #time, summary {
 #building-picker[open] > summary {
   border-color: var(--focus); outline: 2px solid var(--focus); outline-offset: 2px;
 }
-#time { font-variant-numeric: tabular-nums; }
-input[aria-invalid="true"] { border-color: var(--error); }
+#time { display: flex; flex: 1; align-items: center; justify-content: center; padding: 0 4px; font-variant-numeric: tabular-nums; }
+#time input { width: 2.3ch; min-width: 0; height: 100%; border: 0; border-radius: 2px; padding: 0; background: transparent; color: var(--text); font: inherit; text-align: center; }
+.time-separator { flex-shrink: 0; }
+#time:focus-within { border-color: var(--focus); outline: 2px solid var(--focus); outline-offset: 2px; }
+#time input:focus-visible { outline: none; background: var(--accent-soft); }
+#time[aria-invalid="true"] { border-color: var(--error); }
 .time-controls { display: flex; gap: 5px; }
-.time-controls input { flex: 1; }
 #now { flex-shrink: 0; padding: 0 9px; font-size: 13px; font-weight: 400; }
 fieldset:disabled { opacity: .6; }
 
@@ -204,11 +207,7 @@ button:hover { border-color: var(--accent); }
 .detail-header { position: sticky; top: 0; z-index: 3; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 14px 18px; border-bottom: 1px solid var(--border); background: var(--surface); }
 .detail-header h2 { margin: 0; font-size: 18px; }
 .close-dialog { min-height: 34px; }
-.detail-content { padding: 18px; }
-.detail-overview { margin-bottom: 24px; }
-.detail-context, .detail-next { margin: 0; color: var(--text-secondary); font-size: 12px; }
-.detail-duration { margin: 7px 0; font-size: 25px; font-weight: 650; }
-.timetable-title { margin: 0 0 12px; font-size: 13px; font-weight: 600; }
+.detail-content { padding: 0 18px 18px; }
 .timetable-scroll { overflow-x: auto; padding-bottom: 14px; }
 .timetable { display: grid; grid-template-columns: 48px repeat(var(--days), minmax(126px, 1fr)); min-width: calc(48px + var(--days) * 126px); }
 .timetable-day, .timetable-corner { padding: 9px 0; text-align: center; border-bottom: 1px solid var(--border-strong); font-size: 12px; }
@@ -228,22 +227,29 @@ button:hover { border-color: var(--accent); }
 
 /* Compact view: reclaim the rail width while keeping readable result text. */
 @media (max-width: 900px) {
-  :root { --controls-height: 108px; }
   .app { width: min(100% - 28px, 760px); padding-top: 24px; }
   .page-header { margin-bottom: 18px; }
   .sticky-controls { padding: 6px 0; }
-  .filter-panel { margin-top: 6px; }
-  .filter-panel fieldset { width: 100%; display: grid; grid-template-columns: minmax(52px, .7fr) minmax(82px, 1fr) max-content minmax(76px, .9fr) minmax(96px, 1.3fr); gap: 6px; padding: 0; }
-  .field:nth-of-type(2) { display: contents; }
-  .time-controls { display: contents; }
+  .filter-panel { margin-top: 4px; }
+  /* Four controls stay on one row; only the row scrolls on very narrow phones. */
+  .filter-panel fieldset { width: 100%; display: grid; grid-template-columns: minmax(44px, .6fr) minmax(110px, 1.35fr) minmax(70px, .9fr) minmax(90px, 1.2fr); grid-template-rows: 36px; grid-auto-flow: column; gap: 4px; padding: 0; overflow-x: auto; scrollbar-width: none; }
+  .filter-panel fieldset::-webkit-scrollbar { display: none; }
+  .time-controls { position: relative; width: 100%; min-width: 0; gap: 0; border-radius: 4px; }
   .field > label, .field-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   select, #time, summary, #now { height: 36px; font-size: 16px; }
-  .filter-panel select, .filter-panel #time, .filter-panel summary { padding-inline: 6px; }
-  .filter-panel summary { gap: 6px; }
-  .filter-panel #now { height: 36px; padding-inline: 6px; font-size: 16px; }
+  .filter-panel select, .filter-panel #time, .filter-panel summary { padding-inline: 4px; }
+  .filter-panel summary { gap: 4px; }
+  .filter-panel .time-controls #time { padding-right: 44px; }
+  .filter-panel #now { position: absolute; top: 1px; right: 1px; width: 40px; height: 34px; padding: 0 3px; border: 0; border-left: 1px solid var(--border); border-radius: 0 3px 3px 0; background: transparent; font-size: 16px; }
+  .time-controls:hover #time { border-color: var(--control-hover); }
+  .time-controls:focus-within { outline: 2px solid var(--focus); outline-offset: -2px; }
+  .filter-panel .time-controls #time:focus-within, .filter-panel #now:is(:focus, :active) { outline: none; }
+  .filter-panel #now:is(:hover, :active) { background: var(--surface-muted); }
+  /* Keep keyboard focus rings inside the horizontally scrolling filter row. */
+  .filter-panel :where(select, summary):is(:focus, :active), #building-picker[open] > summary { outline-offset: -2px; }
   .availability-body { gap: 0; }
   .availability-body.has-index { grid-template-columns: minmax(0, 1fr); }
-  .building-index { position: fixed; z-index: 4; top: calc(var(--controls-height) + 12px); right: env(safe-area-inset-right, 0px); width: 42px; max-height: calc(100dvh - var(--controls-height) - 24px); border-left: 0; background: color-mix(in srgb, var(--surface) 65%, transparent); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 120ms ease; }
+  .building-index { position: fixed; z-index: 4; top: var(--quick-index-top, 8px); right: env(safe-area-inset-right, 0px); width: 42px; max-height: var(--quick-index-height, 0px); border-left: 0; background: color-mix(in srgb, var(--surface) 65%, transparent); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 120ms ease; }
   .building-index[data-overlay-visible="true"] { opacity: 1; visibility: visible; pointer-events: auto; }
   .building-index button { min-height: 30px; flex-shrink: 0; padding: 3px 4px 3px 1px; border-left: 0; font-size: 11px; text-align: right; }
   .room-row { padding: 9px 4px; gap: 8px; }
@@ -251,20 +257,26 @@ button:hover { border-color: var(--accent); }
   #availability-results .room-name { font-size: 16px; line-height: 1.4; }
   #availability-results .room-info { max-width: 100%; }
   #availability-results .room-duration { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
-  .room-dialog { width: calc(100% - 20px); max-height: calc(100dvh - 20px); }
-  .detail-header { padding: 12px; }
-  .detail-content { padding: 14px 12px; }
+  .room-dialog { width: 100%; max-width: none; height: 100dvh; max-height: 100dvh; margin: 0; border: 0; border-radius: 0; overflow-x: hidden; overflow-y: auto; }
+  .detail-header { padding: max(6px, env(safe-area-inset-top)) 8px 6px; }
+  .detail-header h2 { font-size: 16px; }
+  .detail-content { padding: 0 4px max(12px, env(safe-area-inset-bottom)); }
+  .timetable-scroll { overflow-x: hidden; padding-bottom: 8px; }
+  .timetable { width: 100%; min-width: 0; grid-template-columns: 34px repeat(var(--days), minmax(0, 1fr)); }
+  .timetable-day, .timetable-corner, .time-axis, .timetable-column { min-width: 0; }
+  .timetable-day, .timetable-corner { padding: 6px 0; }
+  .time-tick { right: 3px; font-size: 9px; }
+  .course { --course-inset: 1px; --course-gutter: 2px; display: flex; flex-direction: column; padding: 3px; overflow: hidden; line-height: 1.25; }
+  .course > * { min-width: 0; flex-shrink: 0; }
+  .course-subject { order: 0; font-size: 11px; line-height: 1.2; }
+  .course-professor { order: 1; font-size: 9px; margin-top: 2px; overflow-wrap: anywhere; }
+  .course-time { order: 2; font-size: 8px; margin: 2px 0 0; white-space: normal; overflow-wrap: anywhere; }
+  .course[data-length="short"] .course-professor, .course[data-length="short"] .course-time,
+  .course[data-length="medium"] .course-time { display: none; }
+  .course:focus { min-height: 0; outline-offset: -2px; }
   #lookup-input { font-size: 16px; height: 32px; }
   .lookup-entry { max-height: 68px; }
   #building-options label { min-height: 36px; }
-}
-
-/* At narrow phone widths, preserve type size and fit controls on two full rows. */
-@media (max-width: 420px) {
-  :root { --controls-height: 150px; }
-  .filter-panel fieldset { grid-template-columns: minmax(52px, .7fr) minmax(82px, 1fr) max-content; }
-  .field:nth-of-type(3) { grid-column: 1; }
-  .field:nth-of-type(4) { grid-column: 2 / -1; }
 }
 
 @media (prefers-reduced-motion: reduce) {

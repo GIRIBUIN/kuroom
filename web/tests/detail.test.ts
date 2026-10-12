@@ -30,4 +30,16 @@ describe('weekly timetable presentation', () => {
       [540, 630, 0, 2], [570, 660, 1, 2], [630, 720, 0, 2], [720, 750, 0, 1],
     ])
   })
+
+  it('allocates three overlapping courses entirely within the weekday column', () => {
+    const blocks = timetableBlocks(engine([
+      base, { ...base, subject_name: '운영체제' }, { ...base, subject_name: '열전달' },
+    ]), room.id, '월')
+    expect(blocks.map(block => block.lane)).toEqual([0, 1, 2])
+    for (const block of blocks) {
+      expect(block.lanes).toBe(3)
+      expect(block.lane / block.lanes).toBeGreaterThanOrEqual(0)
+      expect((block.lane + 1) / block.lanes).toBeLessThanOrEqual(1)
+    }
+  })
 })

@@ -3,7 +3,6 @@ import { afterEach, expect, it, vi } from 'vitest'
 import { courseColorIndex } from '../src/course-colors'
 import { createRoomDialog } from '../src/detail'
 import { AvailabilityEngine } from '../src/search'
-import { defaultFilters } from '../src/state'
 
 afterEach(() => {
   vi.restoreAllMocks()
@@ -26,10 +25,8 @@ it('renders the same course hue across weekdays, rooms and theme switches in the
     { ...course, room: rooms[1].id, day: '화' },
   ], { timezone: 'Asia/Seoul' })
   const show = createRoomDialog(engine)
-  const instant = new Date('2026-10-12T00:00:00Z')
-  const state = defaultFilters(engine, instant)
   document.documentElement.dataset.theme = 'light'
-  show(engine.getCurrentStatus(rooms[0].id, instant), state)
+  show(rooms[0])
   const blocks = Array.from(document.querySelectorAll<HTMLElement>('.course'))
   const hue = String(courseColorIndex(course.subject_name, course.professor))
   expect(blocks).toHaveLength(2)
@@ -44,7 +41,7 @@ it('renders the same course hue across weekdays, rooms and theme switches in the
   expect(blocks.every(block => block.dataset.courseColor === hue)).toBe(true)
   expect(document.querySelector('[aria-label="화요일"]')!.textContent).toBe('')
   document.querySelector('dialog')!.close()
-  show(engine.getCurrentStatus(rooms[1].id, instant), state)
+  show(rooms[1])
   expect(document.querySelectorAll('dialog')).toHaveLength(1)
   expect(document.querySelector<HTMLElement>('.course')!.dataset.courseColor).toBe(hue)
 })
@@ -59,8 +56,7 @@ it('allocates distinct hues across the whole week even when different courses pr
     { ...course, day: '수', subject_name: '과목0' },
     { ...course, day: '화', subject_name: '과목8' },
   ], { timezone: 'Asia/Seoul' })
-  const instant = new Date('2026-10-12T00:00:00Z')
-  createRoomDialog(engine)(engine.getCurrentStatus(room.id, instant), defaultFilters(engine, instant))
+  createRoomDialog(engine)(room)
   const hue = (day: string) => document.querySelector<HTMLElement>(`[aria-label="${day}요일"] .course`)!.dataset.courseColor
   expect(hue('월')).toBe(hue('수'))
   expect(hue('월')).not.toBe(hue('화'))

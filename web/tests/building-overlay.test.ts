@@ -9,6 +9,7 @@ let controls: HTMLElement
 let index: HTMLElement
 let list: HTMLElement
 let navigation: ReturnType<typeof mountBuildingQuickNavigation>
+let notifyResize: () => void
 const rooms = [
   { id: '공B155', building: '공B', number: '155' },
   { id: '새502', building: '새', number: '502' },
@@ -20,6 +21,11 @@ beforeEach(() => {
   vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout', 'requestAnimationFrame', 'cancelAnimationFrame'] })
   media = Object.assign(new EventTarget(), { matches: true })
   vi.spyOn(window, 'matchMedia').mockReturnValue(media as unknown as MediaQueryList)
+  vi.stubGlobal('ResizeObserver', class {
+    constructor(callback: () => void) { notifyResize = callback }
+    observe() {}
+    disconnect() {}
+  })
   document.body.innerHTML = `<div id="controls"></div><section><ul id="results">
     <li data-room-id="공B155"><button class="room-row">공B 155</button></li>
     <li data-room-id="새502"><button class="room-row">새 502</button></li>
@@ -33,7 +39,50 @@ beforeEach(() => {
   navigation = mountBuildingQuickNavigation(index, section, controls)
   renderBuildingIndex(index, list, rooms, navigation.onNavigate)
 })
-afterEach(() => { navigation.destroy(); vi.useRealTimers(); vi.restoreAllMocks(); document.body.replaceChildren() })
+afterEach(() => { navigation.destroy(); vi.useRealTimers(); vi.restoreAllMocks(); vi.unstubAllGlobals(); document.body.replaceChildren() })
+
+it('positions below the actual controls bottom before and after sticky, within the viewport', () => {
+  vi.mocked(controls.getBoundingClientRect).mockReturnValue({ bottom: 340 } as DOMRect)
+  scroll()
+  expect(index.style.getPropertyValue('--quick-index-top')).toBe('348px')
+  expect(index.style.getPropertyValue('--quick-index-height')).toBe(`${window.innerHeight - 348 - 8}px`)
+  vi.mocked(controls.getBoundingClientRect).mockReturnValue({ bottom: 120 } as DOMRect)
+  scroll()
+  expect(index.style.getPropertyValue('--quick-index-top')).toBe('128px')
+  vi.mocked(section.getBoundingClientRect).mockReturnValue({ top: -100, bottom: 400 } as DOMRect)
+  scroll()
+  expect(index.style.getPropertyValue('--quick-index-height')).toBe('264px')
+  vi.mocked(controls.getBoundingClientRect).mockReturnValue({ bottom: -100 } as DOMRect)
+  scroll()
+  expect(index.style.getPropertyValue('--quick-index-top')).toBe('8px')
+})
+
+it('remeasures visible navigation on control resize and viewport resize without extending the hide timer', () => {
+  notifyResize()
+  vi.advanceTimersByTime(20)
+  expect(visible()).toBe(false)
+  scroll()
+  vi.mocked(controls.getBoundingClientRect).mockReturnValue({ bottom: 200 } as DOMRect)
+  notifyResize()
+  vi.advanceTimersByTime(20)
+  expect(index.style.getPropertyValue('--quick-index-top')).toBe('208px')
+  vi.mocked(controls.getBoundingClientRect).mockReturnValue({ bottom: 250 } as DOMRect)
+  window.dispatchEvent(new Event('resize'))
+  vi.advanceTimersByTime(20)
+  expect(index.style.getPropertyValue('--quick-index-top')).toBe('258px')
+  vi.advanceTimersByTime(1160)
+  expect(visible()).toBe(false)
+})
+
+it('does not overlap controls when no usable viewport or result space remains', () => {
+  vi.mocked(controls.getBoundingClientRect).mockReturnValue({ bottom: window.innerHeight } as DOMRect)
+  scroll()
+  expect(visible()).toBe(false)
+  vi.mocked(controls.getBoundingClientRect).mockReturnValue({ bottom: 100 } as DOMRect)
+  vi.mocked(section.getBoundingClientRect).mockReturnValue({ top: window.innerHeight + 20, bottom: 1400 } as DOMRect)
+  scroll()
+  expect(visible()).toBe(false)
+})
 
 it('starts hidden/inert, reveals on result scroll and hides 1200ms after the last scroll', () => {
   expect(visible()).toBe(false)
@@ -130,6 +179,8 @@ it('leaves desktop navigation non-inert and unaffected by auto-hide state', () =
   expect(index.inert).toBe(false)
   expect(index.hidden).toBe(false)
   expect(index.children).toHaveLength(2)
+  expect(index.style.getPropertyValue('--quick-index-top')).toBe('')
+  expect(index.style.getPropertyValue('--quick-index-height')).toBe('')
   media.matches = true
   media.dispatchEvent(new Event('change'))
   expect(index.inert).toBe(true)

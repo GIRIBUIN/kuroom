@@ -3,7 +3,8 @@ import { DAYS, loadReleaseData } from './data'
 import type { Day } from './data'
 import { AvailabilityEngine } from './search'
 import { createRoomDialog } from './detail'
-import { applyNow, availabilityText, defaultFilters, isClockTime, MINUTE_OPTIONS, searchRooms, selectBuildings } from './state'
+import { applyNow, availabilityText, defaultFilters, MINUTE_OPTIONS, searchRooms, selectBuildings } from './state'
+import { mountTimeInput } from './time-input-ui'
 import type { FilterState } from './state'
 import { readFilters, writeFilters } from './url'
 import { isLookupMode, lookupRooms, roomLabel } from './lookup'
@@ -49,10 +50,13 @@ root.innerHTML = `
             <select id="day" name="day"></select>
           </div>
           <div class="field">
-            <label for="time">시간</label>
+            <label for="time-hour">시간</label>
             <div class="time-controls">
-              <input id="time" name="time" type="text" inputmode="text" maxlength="5" placeholder="HH:mm"
-                pattern="(?:[01][0-9]|2[0-3]):[0-5][0-9]" title="24시간 형식 HH:mm (예: 22:20)" autocomplete="off" spellcheck="false" required />
+              <div id="time" class="segmented-time" role="group" aria-label="시간 (24시간제)">
+                <input id="time-hour" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="HH" aria-label="시" autocomplete="off" spellcheck="false" />
+                <span class="time-separator" aria-hidden="true">:</span>
+                <input id="time-minute" type="text" inputmode="numeric" pattern="[0-9]*" maxlength="2" placeholder="MM" aria-label="분" autocomplete="off" spellcheck="false" />
+              </div>
               <button id="now" type="button">지금</button>
             </div>
           </div>
@@ -107,7 +111,7 @@ mountThemeToggle(get<HTMLButtonElement>('#theme-toggle'))
 const form = get<HTMLFormElement>('form')
 const fields = get<HTMLFieldSetElement>('#filters')
 const dayInput = get<HTMLSelectElement>('#day')
-const timeInput = get<HTMLInputElement>('#time')
+const timeGroup = get<HTMLElement>('#time')
 const minInput = get<HTMLSelectElement>('#min')
 const picker = get<HTMLDetailsElement>('#building-picker')
 const summary = get<HTMLElement>('#building-value')
@@ -124,7 +128,7 @@ const buildingPanel = get<HTMLElement>('#building-panel')
 const quickNavigation = mountBuildingQuickNavigation(index, section, controls)
 
 // Tokens and mobile filters change the sticky height. Use its actual height for
-// row scroll margins and rail placement; no scroll spy or active tracking.
+// row scroll margins and desktop rail placement; mobile uses viewport geometry.
 if (typeof ResizeObserver !== 'undefined') {
   new ResizeObserver(() => {
     const height = controls.getBoundingClientRect().height
@@ -150,6 +154,7 @@ async function start() {
     const showRoom = createRoomDialog(engine)
     const buildings = [...new Set(data.rooms.map(room => room.building))].sort()
     let state: FilterState = readFilters(new URL(window.location.href), defaultFilters(engine), buildings)
+    const timeInput = mountTimeInput(timeGroup, onTimeCommit)
 
     mountLookup(root, data.rooms, lookup => {
       const active = isLookupMode(lookup)
@@ -173,12 +178,7 @@ async function start() {
         name.className = 'room-name'
         name.textContent = roomLabel(room)
         button.append(name)
-        button.addEventListener('click', () => {
-          // Lookup detail uses the actual current Seoul time, independently of
-          // hidden availability filters. Both flows share this dialog instance.
-          const instant = new Date()
-          showRoom(engine.getCurrentStatus(room.id, instant), defaultFilters(engine, instant))
-        })
+        button.addEventListener('click', () => showRoom(room))
         row.append(button)
         return row
       }))
@@ -202,7 +202,7 @@ async function start() {
       // Keep the real Seoul weekday on weekends instead of silently searching Monday.
       if (state.day === '토' || state.day === '일') dayInput.add(option(state.day, `${state.day} (주말)`))
       dayInput.value = state.day
-      timeInput.value = state.time
+      timeInput.setValue(state.time)
       const minutes = MINUTE_OPTIONS.includes(state.minMinutes) ? MINUTE_OPTIONS : [state.minMinutes, ...MINUTE_OPTIONS]
       minInput.replaceChildren(...minutes.map(value => option(String(value), `${value}분`)))
       minInput.value = String(state.minMinutes)
@@ -214,7 +214,6 @@ async function start() {
     }
 
     function render() {
-      timeInput.removeAttribute('aria-invalid')
       const result = searchRooms(engine, state)
       count.textContent = `빈 강의실 ${result.length}개`
       context.textContent = `${state.day}요일 · ${state.time} 기준`
@@ -236,7 +235,7 @@ async function start() {
         info.append(duration)
         button.append(title, info)
         button.setAttribute('aria-haspopup', 'dialog')
-        button.addEventListener('click', () => showRoom(status, state))
+        button.addEventListener('click', () => showRoom(room))
         row.append(button)
         return row
       })
@@ -250,9 +249,8 @@ async function start() {
       window.history.replaceState(null, '', url)
     }
 
-    function onInput() {
-      if (!isClockTime(timeInput.value)) {
-        timeInput.setAttribute('aria-invalid', 'true')
+    function onTimeCommit(time: string | null) {
+      if (time === null) {
         count.textContent = '시간을 입력해 주세요'
         context.textContent = ''
         list.replaceChildren()
@@ -260,12 +258,12 @@ async function start() {
         quickNavigation.reset()
         get<HTMLElement>('.availability-body').classList.remove('has-index')
         empty.hidden = false
-        empty.textContent = '시각을 HH:mm 형식으로 입력해 주세요.'
+        empty.textContent = '시간을 입력해 주세요.'
         return
       }
       state = {
         day: dayInput.value as Day,
-        time: timeInput.value,
+        time,
         minMinutes: Number(minInput.value),
         buildings: selectBuildings(checkboxes.filter(input => input.checked).map(input => input.value), buildings),
       }
@@ -273,7 +271,10 @@ async function start() {
       render()
     }
 
-    form.addEventListener('input', onInput)
+    form.addEventListener('input', event => {
+      if (event.target instanceof Node && timeGroup.contains(event.target)) return
+      timeInput.commit()
+    })
     get<HTMLButtonElement>('#now').addEventListener('click', () => {
       state = applyNow(engine, state)
       syncControls()
@@ -281,7 +282,7 @@ async function start() {
     })
     allBuildings.addEventListener('click', () => {
       for (const input of checkboxes) input.checked = false
-      onInput()
+      timeInput.commit()
     })
     document.addEventListener('click', event => {
       if (event.target instanceof Node && !picker.contains(event.target) && !buildingPanel.contains(event.target)) picker.open = false

@@ -1,9 +1,7 @@
 import { DAYS } from './data'
-import type { Day } from './data'
+import type { Day, Room } from './data'
 import { formatMinutes } from './search'
-import type { AvailabilityEngine, RoomStatus } from './search'
-import { availabilityText, nextClassText } from './state'
-import type { FilterState } from './state'
+import type { AvailabilityEngine } from './search'
 import { assignCourseColors, courseIdentity } from './course-colors'
 
 export interface TimetableBlock {
@@ -72,19 +70,12 @@ export function createRoomDialog(engine: AvailabilityEngine) {
   document.body.append(dialog)
   dialog.addEventListener('close', () => document.body.classList.remove('dialog-open'))
 
-  return (status: RoomStatus, state: FilterState) => {
-    const room = status.room!
+  return (room: Room) => {
     title.textContent = `${room.building} ${room.number}`.trim()
     content.replaceChildren()
-    const overview = element('div', 'detail-overview')
-    const occupied = status.state === 'occupied'
-    overview.append(element('p', 'detail-context', `${state.day}요일 ${state.time} 기준${occupied ? '' : ' · 비어 있음'}`),
-      element('p', 'detail-duration', occupied ? '수업 중' : availabilityText(status)),
-      element('p', 'detail-next', occupied ? `${status.occupied_until} 종료` : nextClassText(status)))
-    content.append(overview, element('h3', 'timetable-title', '주간 시간표'))
 
     // Always show Mon–Fri. If the release contains weekend classes for this
-    // room, show those columns too so the next class never contradicts the grid.
+    // room, retain those columns too rather than hiding registered classes.
     const days = DAYS.filter((day, index) => index < 5 || engine.getDaySchedules(room.id, day).length > 0)
     const blocks = days.flatMap(day => timetableBlocks(engine, room.id, day))
     const courseColors = assignCourseColors(blocks)
@@ -93,7 +84,7 @@ export function createRoomDialog(engine: AvailabilityEngine) {
     const scroll = element('div', 'timetable-scroll')
     scroll.tabIndex = 0
     scroll.setAttribute('role', 'region')
-    scroll.setAttribute('aria-label', '주간 시간표. 좌우로 스크롤할 수 있습니다')
+    scroll.setAttribute('aria-label', '주간 시간표')
     const grid = element('div', 'timetable')
     grid.style.setProperty('--days', String(days.length))
     grid.style.setProperty('--timeline-height', `${(end - start) * 1.15}px`)
@@ -119,6 +110,8 @@ export function createRoomDialog(engine: AvailabilityEngine) {
       const dayBlocks = blocks.filter(block => block.day === day)
       for (const block of dayBlocks) {
         const course = element('div', 'course')
+        const duration = block.end - block.start
+        course.dataset.length = duration < 60 ? 'short' : duration < 90 ? 'medium' : 'long'
         course.dataset.courseColor = String(courseColors.get(courseIdentity(block.subject, block.professor))!)
         const hours = `${formatMinutes(block.start)}–${formatMinutes(block.end)}`
         course.title = `${day} ${hours} · ${block.subject || '과목명 없음'}${block.professor ? ` · ${block.professor}` : ''}`
@@ -126,8 +119,8 @@ export function createRoomDialog(engine: AvailabilityEngine) {
         course.setAttribute('aria-label', course.title)
         course.style.top = `${(block.start - start) / (end - start) * 100}%`
         course.style.height = `${(block.end - block.start) / (end - start) * 100}%`
-        course.style.left = `calc(${block.lane / block.lanes * 100}% + 2px)`
-        course.style.width = `calc(${100 / block.lanes}% - 4px)`
+        course.style.left = `calc(${block.lane / block.lanes * 100}% + var(--course-inset, 2px))`
+        course.style.width = `calc(${100 / block.lanes}% - var(--course-gutter, 4px))`
         course.append(element('span', 'course-time', hours),
           element('strong', 'course-subject', block.subject || '과목명 없음'))
         if (block.professor) course.append(element('span', 'course-professor', block.professor))

@@ -27,6 +27,13 @@ const press = (target: EventTarget, key: string, options: KeyboardEventInit = {}
   target.dispatchEvent(event)
   return event
 }
+const timeValue = () => `${get<HTMLInputElement>('#time-hour').value}:${get<HTMLInputElement>('#time-minute').value}`
+const setTime = (value: string) => {
+  const [hour = '', minute = ''] = value.split(':')
+  get<HTMLInputElement>('#time-hour').value = hour
+  get<HTMLInputElement>('#time-minute').value = minute
+  press(get('#time-minute'), 'Enter')
+}
 const choose = (text: string) => {
   const option = Array.from(get('#lookup-options').children).find(option => option.textContent?.includes(text))
   expect(option).toBeDefined()
@@ -58,9 +65,8 @@ afterEach(() => {
   action().click()
   get<HTMLButtonElement>('#all-buildings').click()
   get<HTMLSelectElement>('#day').value = '월'
-  get<HTMLInputElement>('#time').value = '09:00'
   get<HTMLSelectElement>('#min').value = '60'
-  get('#time').dispatchEvent(new Event('input', { bubbles: true }))
+  setTime('09:00')
   action().focus()
 })
 
@@ -71,7 +77,7 @@ afterAll(() => {
 })
 
 describe('lookup UI and keyboard wiring without a browser', () => {
-  it.each([320, 390, 420, 421, 769, 900, 901])('keeps compact navigation out of layout and fills the filter grid (%ipx)', width => {
+  it.each([320, 360, 375, 390, 420, 421, 769, 900, 901])('keeps compact navigation out of layout and fills the filter grid (%ipx)', width => {
     // Evaluate CSS/class contracts only in a DOM emulator. This does not
     // measure rendered geometry or launch/control a real browser.
     const dom = new Window({ width, height: 900 })
@@ -89,7 +95,10 @@ describe('lookup UI and keyboard wiring without a browser', () => {
       expect(computed('#building-index').position).toBe('fixed')
       expect(computed('#building-index').visibility).toBe('hidden')
       const rail = dom.document.querySelector('#building-index')!
+      rail.setAttribute('style', '--quick-index-top: 208px; --quick-index-height: 440px')
       rail.setAttribute('data-overlay-visible', 'true')
+      expect(computed('#building-index').top).toBe('208px')
+      expect(computed('#building-index').maxHeight).toBe('440px')
       expect(computed('#building-index').visibility).toBe('visible')
       expect(computed('#building-index').pointerEvents).toBe('auto')
       expect(computed('.availability-body.has-index').gridTemplateColumns).toBe('minmax(0, 1fr)')
@@ -107,10 +116,25 @@ describe('lookup UI and keyboard wiring without a browser', () => {
       expect(computed('#filters').width).toBe('100%')
       expect(computed('#filters').paddingLeft).toBe('0px')
       expect(computed('#filters').paddingRight).toBe('0px')
-      expect(computed('#filters').gridTemplateColumns.match(/minmax/g)).toHaveLength(width <= 420 ? 2 : 4)
-      expect(computed('.time-controls').display).toBe('contents')
-      if (width <= 420) expect(computed('.building-field').gridColumn).toBe('2 / -1')
-      for (const control of ['#day', '#time', '#now', '#min', '#building-picker summary']) {
+      expect(computed('#filters').gridTemplateColumns.match(/minmax/g)).toHaveLength(4)
+      expect(computed('#filters').gridTemplateRows).toBe('36px')
+      expect(computed('#filters').gridAutoFlow).toBe('column')
+      expect(computed('#filters').overflowX).toBe('auto')
+      expect(computed('#filters').scrollbarWidth).toBe('none')
+      expect(computed('#filters').gap).toBe('4px')
+      expect(computed('.filter-panel').marginTop).toBe('4px')
+      expect(computed('.field:nth-of-type(2)').display).toBe('flex')
+      expect(computed('.time-controls').display).toBe('flex')
+      expect(computed('.time-controls').position).toBe('relative')
+      expect(computed('#now').position).toBe('absolute')
+      expect(computed('#now').right).toBe('1px')
+      expect(computed('#now').width).toBe('40px')
+      expect(computed('#now').height).toBe('34px')
+      expect(computed('#now').fontSize).toBe('16px')
+      expect(computed('#time').paddingRight).toBe('44px')
+      expect(dom.document.querySelector('#now')!.parentElement).toBe(dom.document.querySelector('.time-controls'))
+      expect(dom.document.querySelectorAll('#filters > .field')).toHaveLength(4)
+      for (const control of ['#day', '#time', '#min', '#building-picker summary']) {
         expect(computed(control).height).toBe('36px')
         expect(computed(control).fontSize).toBe('16px')
       }
@@ -120,6 +144,8 @@ describe('lookup UI and keyboard wiring without a browser', () => {
       expect(computed('#building-index').position).toBe('sticky')
       expect(computed('#building-index button').minHeight).toBe('28px')
       expect(computed('#building-index button').textAlign).toBe('left')
+      expect(computed('.time-controls').display).toBe('flex')
+      expect(computed('#now').position).not.toBe('absolute')
     }
     expect(computed('.sticky-controls').position).toBe('sticky')
     const row = dom.document.querySelector('#results .room-row')!
@@ -144,26 +170,81 @@ describe('lookup UI and keyboard wiring without a browser', () => {
     expect(get('#results').textContent).not.toContain('다음 수업')
     expect(get('#results').textContent).toContain('제한 없음')
     get<HTMLButtonElement>('#results button').click()
-    expect(get('.detail-next').textContent).toContain('주간 수업 없음')
+    expect(document.querySelector('.detail-duration')).toBeNull()
+    expect(document.querySelector('.detail-next')).toBeNull()
   })
 
   it('guarantees 24-hour HH:mm entry and context independently of browser locale', () => {
-    const time = get<HTMLInputElement>('#time')
-    expect(time.type).toBe('text')
-    expect(time.title).toContain('24시간')
-    expect(time.value).toBe('09:00')
-    for (const value of ['09:00', '13:30', '22:20', '00:00', '23:59']) {
-      time.value = value
-      time.dispatchEvent(new Event('input', { bubbles: true }))
-      expect(get('#result-context').textContent).toBe(`월요일 · ${value} 기준`)
-      expect(time.hasAttribute('aria-invalid')).toBe(false)
+    for (const id of ['#time-hour', '#time-minute']) {
+      const segment = get<HTMLInputElement>(id)
+      expect(segment.type).toBe('text')
+      expect(segment.inputMode).toBe('numeric')
+      expect(segment.maxLength).toBe(2)
+      expect(segment.pattern).toBe('[0-9]*')
     }
-    time.value = '10:20 PM'
-    time.dispatchEvent(new Event('input', { bubbles: true }))
-    expect(time.getAttribute('aria-invalid')).toBe('true')
+    expect(get('#time-hour').getAttribute('aria-label')).toBe('시')
+    expect(get('#time-minute').getAttribute('aria-label')).toBe('분')
+    expect(get('.time-separator').getAttribute('aria-hidden')).toBe('true')
+    expect(get('.time-separator').textContent).toBe(':')
+    expect(timeValue()).toBe('09:00')
+    for (const value of ['09:00', '13:30', '22:20', '00:00', '23:59']) {
+      setTime(value)
+      expect(get('#result-context').textContent).toBe(`월요일 · ${value} 기준`)
+      expect(get('#time').hasAttribute('aria-invalid')).toBe(false)
+    }
     get<HTMLButtonElement>('#now').click()
-    expect(time.value).toBe('09:00')
-    expect(time.hasAttribute('aria-invalid')).toBe(false)
+    expect(timeValue()).toBe('09:00')
+    expect(get('#time').hasAttribute('aria-invalid')).toBe(false)
+  })
+
+  it.each(['Enter', 'blur'])('commits numeric time on %s without formatting drafts or changing the weekday', method => {
+    const hour = get<HTMLInputElement>('#time-hour')
+    const minute = get<HTMLInputElement>('#time-minute')
+    get<HTMLSelectElement>('#day').value = '화'
+    get('#day').dispatchEvent(new Event('input', { bubbles: true }))
+    const url = window.location.href
+    hour.value = '13'
+    hour.dispatchEvent(new Event('input', { bubbles: true }))
+    expect(document.activeElement).toBe(minute)
+    minute.value = '30'
+    minute.dispatchEvent(new Event('input', { bubbles: true }))
+    expect(window.location.href).toBe(url)
+    if (method === 'Enter') expect(press(minute, 'Enter').defaultPrevented).toBe(true)
+    else minute.dispatchEvent(new FocusEvent('blur'))
+    expect(timeValue()).toBe('13:30')
+    expect(get('#result-context').textContent).toBe('화요일 · 13:30 기준')
+    expect(new URL(window.location.href).searchParams.get('time')).toBe('13:30')
+    expect(new URL(window.location.href).searchParams.get('day')).toBe('tue')
+    get<HTMLButtonElement>('#now').click()
+    expect(timeValue()).toBe('09:00')
+    expect(get<HTMLSelectElement>('#day').value).toBe('월')
+    expect(new URL(window.location.href).searchParams.get('time')).toBe('09:00')
+  })
+
+  it.each([['24:00', '00:00'], ['23:60', '23:59'], ['29:99', '00:59']])('corrects %s on commit to %s', (value, expected) => {
+    setTime(value)
+    expect(timeValue()).toBe(expected)
+    expect(new URL(window.location.href).searchParams.get('time')).toBe(expected)
+  })
+
+  it('keeps both empty segments empty without replacing the saved valid time', () => {
+    const url = window.location.href
+    setTime('')
+    expect(timeValue()).toBe(':')
+    expect(get('#time').getAttribute('aria-invalid')).toBe('true')
+    expect(window.location.href).toBe(url)
+  })
+
+  it('does not commit Enter during IME composition', () => {
+    const minute = get<HTMLInputElement>('#time-minute')
+    minute.value = '30'
+    const url = window.location.href
+    expect(press(minute, 'Enter', { isComposing: true }).defaultPrevented).toBe(false)
+    expect(timeValue()).toBe('09:30')
+    expect(window.location.href).toBe(url)
+    press(minute, 'Enter')
+    expect(timeValue()).toBe('09:30')
+    expect(new URL(window.location.href).searchParams.get('time')).toBe('09:30')
   })
 
   it('marks exact autocomplete matches visually without changing candidate selection', () => {
@@ -300,10 +381,9 @@ describe('lookup UI and keyboard wiring without a browser', () => {
     get<HTMLButtonElement>('#results button').click()
     expect(dialog.open).toBe(true)
     dialog.close()
-    // A different availability day/time/building must not restrict lookup or
-    // determine its "current" state; lookup detail uses the actual instant.
+    // Availability day/time/building must not restrict direct timetable lookup.
     get<HTMLSelectElement>('#day').value = '화'
-    get<HTMLInputElement>('#time').value = '15:00'
+    setTime('15:00')
     const building = get<HTMLInputElement>('#building-options input[value="경영"]')
     building.checked = true
     building.dispatchEvent(new Event('input', { bubbles: true }))
@@ -314,9 +394,8 @@ describe('lookup UI and keyboard wiring without a browser', () => {
     expect(document.querySelectorAll('dialog')).toHaveLength(1)
     expect(dialog.open).toBe(true)
     expect(get('#room-title').textContent).toBe('공B 155')
-    expect(get('.detail-context').textContent).toBe('월요일 09:00 기준')
-    expect(get('.detail-duration').textContent).toBe('수업 중')
-    expect(get('.detail-next').textContent).toBe('10:30 종료')
+    expect(document.querySelector('.detail-context, .detail-duration')).toBeNull()
+    expect(document.querySelector('.detail-next')).toBeNull()
     expect(get('.course-subject').textContent).toBe('자료구조')
     expect(get('.course-professor').textContent).toBe('김교수')
     get<HTMLButtonElement>('.close-dialog').focus()
@@ -326,7 +405,8 @@ describe('lookup UI and keyboard wiring without a browser', () => {
     typeQuery('공B156')
     get<HTMLButtonElement>('#lookup-rooms button').click()
     expect(get('#room-title').textContent).toBe('공B 156')
-    expect(get('.detail-duration').textContent).toBe('30분')
+    expect(get('#room-title').textContent).toBe('공B 156')
+    expect(get('.course-subject').textContent).toBe('운영체제')
   })
 
   it('renders no disclaimer or empty-time placeholder; empty grid columns remain blank', () => {
@@ -464,8 +544,7 @@ describe('lookup UI and keyboard wiring without a browser', () => {
     building.checked = true
     building.dispatchEvent(new Event('input', { bubbles: true }))
     expect(Array.from(rail.children, button => button.textContent)).toEqual(['경영'])
-    get<HTMLInputElement>('#time').value = ''
-    get('#time').dispatchEvent(new Event('input', { bubbles: true }))
+    setTime('')
     expect(rail.hidden).toBe(true)
     expect(rail.children).toHaveLength(0)
   })

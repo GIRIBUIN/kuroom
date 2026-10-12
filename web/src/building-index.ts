@@ -33,6 +33,7 @@ export function mountBuildingQuickNavigation(index: HTMLElement, section: HTMLEl
   let timer: ReturnType<typeof setTimeout> | undefined
   let visible = false
   let hovering = false
+  let revealOnFrame = false
   const pointers = new Set<number>()
   const focused = () => index.contains(document.activeElement)
   const available = () => !section.hidden && !index.hidden && index.children.length > 0
@@ -52,6 +53,7 @@ export function mountBuildingQuickNavigation(index: HTMLElement, section: HTMLEl
     clearTimer()
     if (frame !== undefined) cancelAnimationFrame(frame)
     frame = undefined
+    revealOnFrame = false
     hovering = false
     pointers.clear()
     setVisible(false)
@@ -61,20 +63,35 @@ export function mountBuildingQuickNavigation(index: HTMLElement, section: HTMLEl
     if (!visible || hovering || pointers.size || focused()) return
     timer = setTimeout(() => setVisible(false), 1200)
   }
+  function positionOverlay() {
+    const bounds = section.getBoundingClientRect()
+    const top = Math.max(8, controls.getBoundingClientRect().bottom + 8, bounds.top)
+    const height = Math.min(window.innerHeight, bounds.bottom) - top - 8
+    if (height <= 0) return false
+    index.style.setProperty('--quick-index-top', `${top}px`)
+    index.style.setProperty('--quick-index-height', `${height}px`)
+    return true
+  }
   function reveal() {
-    if (!compact.matches || !available()) return
+    if (!compact.matches) return
+    if (!available() || !positionOverlay()) { reset(); return }
     setVisible(true)
     scheduleHide()
   }
-  function onScroll() {
-    if (!compact.matches || frame !== undefined) return
+  function queuePosition(revealAfterScroll: boolean) {
+    if (!compact.matches) return
+    revealOnFrame ||= revealAfterScroll
+    if (frame !== undefined) return
     frame = requestAnimationFrame(() => {
       frame = undefined
-      const bounds = section.getBoundingClientRect()
-      if (available() && bounds.top < window.innerHeight && bounds.bottom > controls.getBoundingClientRect().bottom) reveal()
-      else reset()
+      const shouldReveal = revealOnFrame
+      revealOnFrame = false
+      if (shouldReveal) reveal()
+      else if (visible && (!available() || !positionOverlay())) reset()
     })
   }
+  function onScroll() { queuePosition(true) }
+  function onResize() { if (visible) queuePosition(false) }
   function onEnter(event: PointerEvent) {
     if (event.pointerType !== 'touch') hovering = true
     if (visible) scheduleHide()
@@ -99,7 +116,11 @@ export function mountBuildingQuickNavigation(index: HTMLElement, section: HTMLEl
 
   index.dataset.overlayVisible = 'false'
   reset()
+  const observer = typeof ResizeObserver !== 'undefined' ? new ResizeObserver(onResize) : undefined
+  observer?.observe(controls)
+  observer?.observe(section)
   window.addEventListener('scroll', onScroll, { passive: true })
+  window.addEventListener('resize', onResize)
   index.addEventListener('scroll', onScroll, { passive: true })
   index.addEventListener('pointerenter', onEnter)
   index.addEventListener('pointerleave', onLeave)
@@ -114,7 +135,9 @@ export function mountBuildingQuickNavigation(index: HTMLElement, section: HTMLEl
     onNavigate,
     destroy() {
       reset()
+      observer?.disconnect()
       window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onResize)
       index.removeEventListener('scroll', onScroll)
       index.removeEventListener('pointerenter', onEnter)
       index.removeEventListener('pointerleave', onLeave)
