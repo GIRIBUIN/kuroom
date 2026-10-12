@@ -226,28 +226,30 @@ button:hover { border-color: var(--accent); }
 .course-professor { color: var(--course-muted); margin-top: 4px; font-size: 10px; }
 .course:focus { z-index: 2; min-height: max-content; }
 
-/* Mobile/tablet-small: full-width results, with no persistent navigation rail. */
-@media (max-width: 768px) {
+/* Compact view: reclaim the rail width while keeping readable result text. */
+@media (max-width: 900px) {
   :root { --controls-height: 108px; }
-  .app { width: calc(100% - 28px); padding-top: 24px; }
+  .app { width: min(100% - 28px, 760px); padding-top: 24px; }
   .page-header { margin-bottom: 18px; }
   .sticky-controls { padding: 6px 0; }
   .filter-panel { margin-top: 6px; }
-  .filter-panel fieldset { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; padding: 3px 2px 5px; }
-  .field { flex-shrink: 0; }
-  .field:nth-of-type(1) { width: 58px; }
-  .field:nth-of-type(2) { width: 144px; }
-  .field:nth-of-type(3) { width: 88px; }
-  .field:nth-of-type(4) { width: 112px; }
+  .filter-panel fieldset { width: 100%; display: grid; grid-template-columns: minmax(52px, .7fr) minmax(82px, 1fr) max-content minmax(76px, .9fr) minmax(96px, 1.3fr); gap: 6px; padding: 0; }
+  .field:nth-of-type(2) { display: contents; }
+  .time-controls { display: contents; }
   .field > label, .field-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   select, #time, summary, #now { height: 36px; font-size: 16px; }
+  .filter-panel select, .filter-panel #time, .filter-panel summary { padding-inline: 6px; }
+  .filter-panel summary { gap: 6px; }
+  .filter-panel #now { height: 36px; padding-inline: 6px; font-size: 16px; }
   .availability-body { gap: 0; }
   .availability-body.has-index { grid-template-columns: minmax(0, 1fr); }
-  .building-index { display: none; }
+  .building-index { position: fixed; z-index: 4; top: calc(var(--controls-height) + 12px); right: max(6px, env(safe-area-inset-right)); width: 60px; max-height: calc(100dvh - var(--controls-height) - 24px); background: var(--surface); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 120ms ease; }
+  .building-index[data-overlay-visible="true"] { opacity: 1; visibility: visible; pointer-events: auto; }
+  .building-index button { min-height: 44px; flex-shrink: 0; }
   .room-row { padding: 9px 4px; gap: 8px; }
-  #availability-results .room-row { flex-direction: column; align-items: stretch; justify-content: center; min-height: 76px; padding: 14px 12px; gap: 6px; }
+  #availability-results .room-row { flex-wrap: wrap; min-height: 56px; padding: 12px 8px; gap: 6px 12px; }
   #availability-results .room-name { font-size: 16px; line-height: 1.4; }
-  #availability-results .room-info { align-items: flex-start; flex-shrink: 1; }
+  #availability-results .room-info { max-width: 100%; }
   #availability-results .room-duration { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
   .room-dialog { width: calc(100% - 20px); max-height: calc(100dvh - 20px); }
   .detail-header { padding: 12px; }
@@ -255,4 +257,16 @@ button:hover { border-color: var(--accent); }
   #lookup-input { font-size: 16px; height: 32px; }
   .lookup-entry { max-height: 68px; }
   #building-options label { min-height: 36px; }
+}
+
+/* At narrow phone widths, preserve type size and fit controls on two full rows. */
+@media (max-width: 420px) {
+  :root { --controls-height: 150px; }
+  .filter-panel fieldset { grid-template-columns: minmax(52px, .7fr) minmax(82px, 1fr) max-content; }
+  .field:nth-of-type(3) { grid-column: 1; }
+  .field:nth-of-type(4) { grid-column: 2 / -1; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .building-index { transition: none; }
 }

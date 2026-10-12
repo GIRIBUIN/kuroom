@@ -71,7 +71,7 @@ afterAll(() => {
 })
 
 describe('lookup UI and keyboard wiring without a browser', () => {
-  it.each([390, 768, 769])('applies mobile layout through 768px and preserves desktop above it (%ipx)', width => {
+  it.each([320, 390, 420, 421, 769, 900, 901])('keeps compact navigation out of layout and fills the filter grid (%ipx)', width => {
     // Evaluate CSS/class contracts only in a DOM emulator. This does not
     // measure rendered geometry or launch/control a real browser.
     const dom = new Window({ width, height: 900 })
@@ -80,22 +80,41 @@ describe('lookup UI and keyboard wiring without a browser', () => {
     dom.document.head.append(style)
     dom.document.body.innerHTML = get('.app').outerHTML
     const computed = (selector: string) => dom.getComputedStyle(dom.document.querySelector(selector)!)
-    const mobile = width <= 768
-    expect(computed('#building-index').display).toBe(mobile ? 'none' : 'flex')
-    expect(computed('#availability-results .room-row').alignItems).toBe(mobile ? 'stretch' : 'center')
-    if (mobile) {
+    const compact = width <= 900
+    expect(computed('#building-index').display).toBe('flex')
+    expect(computed('#availability-results .room-row').alignItems).toBe('center')
+    expect(computed('#availability-results .room-row').flexDirection).not.toBe('column')
+    if (compact) {
       expect(computed('.availability-body.has-index').gridTemplateColumns).toBe('minmax(0, 1fr)')
-      expect(computed('#availability-results .room-row').flexDirection).toBe('column')
-      expect(computed('#availability-results .room-row').minHeight).toBe('76px')
-      expect(computed('#availability-results .room-info').alignItems).toBe('flex-start')
-      expect(computed('#availability-results .room-row').paddingTop).toBe('14px')
-      expect(computed('#filters').display).toBe('flex')
-      expect(computed('#filters').flexWrap).toBe('nowrap')
-      expect(computed('#filters').overflowX).toBe('auto')
+      expect(computed('#building-index').position).toBe('fixed')
+      expect(computed('#building-index').visibility).toBe('hidden')
+      const rail = dom.document.querySelector('#building-index')!
+      rail.setAttribute('data-overlay-visible', 'true')
+      expect(computed('#building-index').visibility).toBe('visible')
+      expect(computed('#building-index').pointerEvents).toBe('auto')
+      expect(computed('.availability-body.has-index').gridTemplateColumns).toBe('minmax(0, 1fr)')
+      expect(computed('#building-index button').minHeight).toBe('44px')
+      expect(computed('#availability-results .room-row').flexWrap).toBe('wrap')
+      expect(computed('#availability-results .room-row').minHeight).toBe('56px')
+      expect(computed('#availability-results .room-info').alignItems).toBe('flex-end')
+      expect(computed('#availability-results .room-row').paddingTop).toBe('12px')
+      expect(computed('#availability-results .room-name').fontSize).toBe('16px')
+      expect(computed('#availability-results .room-duration').fontSize).toBe('14px')
+      expect(computed('#filters').display).toBe('grid')
+      expect(computed('#filters').width).toBe('100%')
+      expect(computed('#filters').paddingLeft).toBe('0px')
+      expect(computed('#filters').paddingRight).toBe('0px')
+      expect(computed('#filters').gridTemplateColumns.match(/minmax/g)).toHaveLength(width <= 420 ? 2 : 4)
+      expect(computed('.time-controls').display).toBe('contents')
+      if (width <= 420) expect(computed('.building-field').gridColumn).toBe('2 / -1')
+      for (const control of ['#day', '#time', '#now', '#min', '#building-picker summary']) {
+        expect(computed(control).height).toBe('36px')
+        expect(computed(control).fontSize).toBe('16px')
+      }
       expect(computed('.lookup-entry').maxHeight).toBe('68px')
     } else {
       expect(computed('.availability-body.has-index').gridTemplateColumns).toContain('64px')
-      expect(computed('#availability-results .room-row').flexDirection).not.toBe('column')
+      expect(computed('#building-index').position).toBe('sticky')
     }
     expect(computed('.sticky-controls').position).toBe('sticky')
     const row = dom.document.querySelector('#results .room-row')!

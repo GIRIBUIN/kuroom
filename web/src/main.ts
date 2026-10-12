@@ -8,7 +8,7 @@ import type { FilterState } from './state'
 import { readFilters, writeFilters } from './url'
 import { isLookupMode, lookupRooms, roomLabel } from './lookup'
 import { mountLookup } from './lookup-ui'
-import { renderBuildingIndex } from './building-index'
+import { mountBuildingQuickNavigation, renderBuildingIndex } from './building-index'
 import { mountThemeToggle } from './theme'
 
 const root = document.querySelector<HTMLDivElement>('#app')!
@@ -121,6 +121,7 @@ const section = get<HTMLElement>('#availability-results')
 const controls = get<HTMLElement>('.sticky-controls')
 const index = get<HTMLElement>('#building-index')
 const buildingPanel = get<HTMLElement>('#building-panel')
+const quickNavigation = mountBuildingQuickNavigation(index, section, controls)
 
 // Tokens and mobile filters change the sticky height. Use its actual height for
 // row scroll margins and rail placement; no scroll spy or active tracking.
@@ -155,6 +156,7 @@ async function start() {
       form.hidden = active
       section.hidden = active
       get<HTMLElement>('#lookup-results').hidden = !active
+      quickNavigation.reset()
       if (!active) return
       picker.open = false
       buildingPanel.hidden = true
@@ -239,7 +241,8 @@ async function start() {
         return row
       })
       list.replaceChildren(...rows)
-      renderBuildingIndex(index, list, result.map(status => status.room!))
+      renderBuildingIndex(index, list, result.map(status => status.room!), quickNavigation.onNavigate)
+      quickNavigation.reset()
       get<HTMLElement>('.availability-body').classList.toggle('has-index', result.length > 0)
       empty.hidden = result.length > 0
       empty.textContent = '조건에 맞는 빈 강의실이 없습니다.'
@@ -254,6 +257,7 @@ async function start() {
         context.textContent = ''
         list.replaceChildren()
         renderBuildingIndex(index, list, [])
+        quickNavigation.reset()
         get<HTMLElement>('.availability-body').classList.remove('has-index')
         empty.hidden = false
         empty.textContent = '시각을 HH:mm 형식으로 입력해 주세요.'
