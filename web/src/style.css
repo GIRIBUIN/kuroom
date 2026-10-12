@@ -226,7 +226,8 @@ button:hover { border-color: var(--accent); }
 .course-professor { color: var(--course-muted); margin-top: 4px; font-size: 10px; }
 .course:focus { z-index: 2; min-height: max-content; }
 
-@media (max-width: 560px) {
+/* Mobile/tablet-small: full-width results, with no persistent navigation rail. */
+@media (max-width: 768px) {
   :root { --controls-height: 108px; }
   .app { width: calc(100% - 28px); padding-top: 24px; }
   .page-header { margin-bottom: 18px; }
@@ -235,19 +236,23 @@ button:hover { border-color: var(--accent); }
   .filter-panel fieldset { display: flex; flex-wrap: nowrap; gap: 6px; overflow-x: auto; padding: 3px 2px 5px; }
   .field { flex-shrink: 0; }
   .field:nth-of-type(1) { width: 58px; }
-  .field:nth-of-type(2) { width: 172px; }
+  .field:nth-of-type(2) { width: 144px; }
   .field:nth-of-type(3) { width: 88px; }
-  .field:nth-of-type(4) { width: 124px; }
+  .field:nth-of-type(4) { width: 112px; }
   .field > label, .field-label { position: absolute; width: 1px; height: 1px; margin: -1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
   select, #time, summary, #now { height: 36px; font-size: 16px; }
-  .availability-body { gap: 6px; }
-  .availability-body.has-index { grid-template-columns: minmax(0, 1fr) 52px; }
-  .building-index button { min-height: 36px; }
+  .availability-body { gap: 0; }
+  .availability-body.has-index { grid-template-columns: minmax(0, 1fr); }
+  .building-index { display: none; }
   .room-row { padding: 9px 4px; gap: 8px; }
-  .room-duration { font-size: 14px; }
+  #availability-results .room-row { flex-direction: column; align-items: stretch; justify-content: center; min-height: 76px; padding: 14px 12px; gap: 6px; }
+  #availability-results .room-name { font-size: 16px; line-height: 1.4; }
+  #availability-results .room-info { align-items: flex-start; flex-shrink: 1; }
+  #availability-results .room-duration { font-size: 14px; line-height: 1.5; overflow-wrap: anywhere; }
   .room-dialog { width: calc(100% - 20px); max-height: calc(100dvh - 20px); }
   .detail-header { padding: 12px; }
   .detail-content { padding: 14px 12px; }
   #lookup-input { font-size: 16px; height: 32px; }
+  .lookup-entry { max-height: 68px; }
   #building-options label { min-height: 36px; }
 }

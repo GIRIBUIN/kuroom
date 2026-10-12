@@ -1,6 +1,8 @@
 // @vitest-environment happy-dom
 // DOM unit tests only: no browser process, automation, or GUI is used.
 import { afterAll, afterEach, beforeAll, describe, expect, it, vi } from 'vitest'
+import { readFileSync } from 'node:fs'
+import { Window } from 'happy-dom'
 import type { Room, Schedule } from '../src/data'
 
 const rooms: Room[] = [
@@ -69,6 +71,41 @@ afterAll(() => {
 })
 
 describe('lookup UI and keyboard wiring without a browser', () => {
+  it.each([390, 768, 769])('applies mobile layout through 768px and preserves desktop above it (%ipx)', width => {
+    // Evaluate CSS/class contracts only in a DOM emulator. This does not
+    // measure rendered geometry or launch/control a real browser.
+    const dom = new Window({ width, height: 900 })
+    const style = dom.document.createElement('style')
+    style.textContent = readFileSync('src/style.css', 'utf8')
+    dom.document.head.append(style)
+    dom.document.body.innerHTML = get('.app').outerHTML
+    const computed = (selector: string) => dom.getComputedStyle(dom.document.querySelector(selector)!)
+    const mobile = width <= 768
+    expect(computed('#building-index').display).toBe(mobile ? 'none' : 'flex')
+    expect(computed('#availability-results .room-row').alignItems).toBe(mobile ? 'stretch' : 'center')
+    if (mobile) {
+      expect(computed('.availability-body.has-index').gridTemplateColumns).toBe('minmax(0, 1fr)')
+      expect(computed('#availability-results .room-row').flexDirection).toBe('column')
+      expect(computed('#availability-results .room-row').minHeight).toBe('76px')
+      expect(computed('#availability-results .room-info').alignItems).toBe('flex-start')
+      expect(computed('#availability-results .room-row').paddingTop).toBe('14px')
+      expect(computed('#filters').display).toBe('flex')
+      expect(computed('#filters').flexWrap).toBe('nowrap')
+      expect(computed('#filters').overflowX).toBe('auto')
+      expect(computed('.lookup-entry').maxHeight).toBe('68px')
+    } else {
+      expect(computed('.availability-body.has-index').gridTemplateColumns).toContain('64px')
+      expect(computed('#availability-results .room-row').flexDirection).not.toBe('column')
+    }
+    expect(computed('.sticky-controls').position).toBe('sticky')
+    const row = dom.document.querySelector('#results .room-row')!
+    expect(row.tagName).toBe('BUTTON')
+    expect(row.children[0].className).toBe('room-name')
+    expect(row.children[1].querySelector('.room-duration')).not.toBeNull()
+    expect(row.textContent).not.toContain('다음 수업')
+    dom.close()
+  })
+
   it('keeps the small accessible theme button in the non-sticky header', () => {
     const toggle = get<HTMLButtonElement>('.page-header #theme-toggle')
     expect(toggle.type).toBe('button')
