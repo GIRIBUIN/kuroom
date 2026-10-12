@@ -14,7 +14,7 @@ from data_loader import (
 
 
 DEFAULT_ROOT = Path("ku_room_output")
-DEFAULT_DIST = Path("dist")
+DEFAULT_DIST = Path("data/releases")
 
 TIMEZONE = "Asia/Seoul"
 
