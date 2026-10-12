@@ -1,10 +1,26 @@
 <!doctype html>
-<html lang="en">
+<html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>web</title>
+    <meta name="theme-color" content="#fafafa" />
+    <meta name="description" content="건국대학교 빈 강의실을 요일, 시각, 최소 공실 시간과 건물로 찾아보세요." />
+    <title>kuroom · 건국대학교 빈 강의실 찾기</title>
+    <!-- Apply before module/CSS loading; keep these defaults in sync with theme.ts/style.css. -->
+    <style>
+      :root { --bg: #fafafa; background: var(--bg); color-scheme: light; }
+      :root[data-theme="dark"] { --bg: #181818; color-scheme: dark; }
+    </style>
+    <script>
+      (() => {
+        let stored = null;
+        try { stored = localStorage.getItem('kuroom.theme'); } catch {}
+        const theme = stored === 'light' || stored === 'dark' ? stored
+          : window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+        document.documentElement.dataset.theme = theme;
+        document.querySelector('meta[name="theme-color"]').setAttribute('content', theme === 'dark' ? '#181818' : '#fafafa');
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>
