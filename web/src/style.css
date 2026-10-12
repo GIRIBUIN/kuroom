@@ -243,9 +243,9 @@ button:hover { border-color: var(--accent); }
   .filter-panel #now { height: 36px; padding-inline: 6px; font-size: 16px; }
   .availability-body { gap: 0; }
   .availability-body.has-index { grid-template-columns: minmax(0, 1fr); }
-  .building-index { position: fixed; z-index: 4; top: calc(var(--controls-height) + 12px); right: max(6px, env(safe-area-inset-right)); width: 60px; max-height: calc(100dvh - var(--controls-height) - 24px); background: var(--surface); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 120ms ease; }
+  .building-index { position: fixed; z-index: 4; top: calc(var(--controls-height) + 12px); right: env(safe-area-inset-right, 0px); width: 42px; max-height: calc(100dvh - var(--controls-height) - 24px); border-left: 0; background: color-mix(in srgb, var(--surface) 65%, transparent); opacity: 0; visibility: hidden; pointer-events: none; transition: opacity 120ms ease; }
   .building-index[data-overlay-visible="true"] { opacity: 1; visibility: visible; pointer-events: auto; }
-  .building-index button { min-height: 44px; flex-shrink: 0; }
+  .building-index button { min-height: 30px; flex-shrink: 0; padding: 3px 4px 3px 1px; border-left: 0; font-size: 11px; text-align: right; }
   .room-row { padding: 9px 4px; gap: 8px; }
   #availability-results .room-row { flex-wrap: wrap; min-height: 56px; padding: 12px 8px; gap: 6px 12px; }
   #availability-results .room-name { font-size: 16px; line-height: 1.4; }

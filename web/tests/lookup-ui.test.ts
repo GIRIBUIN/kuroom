@@ -93,7 +93,10 @@ describe('lookup UI and keyboard wiring without a browser', () => {
       expect(computed('#building-index').visibility).toBe('visible')
       expect(computed('#building-index').pointerEvents).toBe('auto')
       expect(computed('.availability-body.has-index').gridTemplateColumns).toBe('minmax(0, 1fr)')
-      expect(computed('#building-index button').minHeight).toBe('44px')
+      expect(computed('#building-index').width).toBe('42px')
+      expect(computed('#building-index button').minHeight).toBe('30px')
+      expect(computed('#building-index button').textAlign).toBe('right')
+      expect(computed('#building-index button').fontSize).toBe('11px')
       expect(computed('#availability-results .room-row').flexWrap).toBe('wrap')
       expect(computed('#availability-results .room-row').minHeight).toBe('56px')
       expect(computed('#availability-results .room-info').alignItems).toBe('flex-end')
@@ -115,6 +118,8 @@ describe('lookup UI and keyboard wiring without a browser', () => {
     } else {
       expect(computed('.availability-body.has-index').gridTemplateColumns).toContain('64px')
       expect(computed('#building-index').position).toBe('sticky')
+      expect(computed('#building-index button').minHeight).toBe('28px')
+      expect(computed('#building-index button').textAlign).toBe('left')
     }
     expect(computed('.sticky-controls').position).toBe('sticky')
     const row = dom.document.querySelector('#results .room-row')!
